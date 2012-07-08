@@ -11,6 +11,17 @@
             url="${project.organization.url}" />
   </plugin-info>
 
+  <!--
+  Workaround for versions prior 4.0.1 to allow dependency injection.
+  See: https://developer.atlassian.com/display/CONFDEV/Workaround+pattern+for+autowiring+jobs
+  -->
+  <component key="purge-old-attachments-jobdetail"
+             name="Purge attachments job-detail"
+             class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJobDetail">
+    <description>Confluence &lt; 4.0.1 compatible job detail.</description>
+    <interface>org.quartz.JobDetail</interface>
+  </component>
+
   <job key="purge-old-attachments-job"
        name="Purge Old Attachment Versions"
        class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJob"
@@ -18,7 +29,7 @@
 
   <trigger key="purge-old-attachments-trigger"
            name="Purge Old Attachments Trigger">
-    <job key="purge-old-attachments-job" />
+    <job key="purge-old-attachments-jobdetail" />
     <!-- Run once a day -->
     <schedule repeat-interval="86400000"/>
     <managed editable="true"

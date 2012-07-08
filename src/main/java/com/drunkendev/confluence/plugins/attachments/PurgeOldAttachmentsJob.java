@@ -28,7 +28,6 @@ public class PurgeOldAttachmentsJob extends AbstractJob {
 
     private static final Logger LOG =
             LoggerFactory.getLogger(PurgeOldAttachmentsJob.class);
-    private AttachmentManager attachmentManager;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
@@ -39,6 +38,10 @@ public class PurgeOldAttachmentsJob extends AbstractJob {
 
     @Override
     public void doExecute(JobExecutionContext jec) throws JobExecutionException {
+        PurgeOldAttachmentsJobDetail jd =
+                (PurgeOldAttachmentsJobDetail) jec.getJobDetail();
+        AttachmentManager attachmentManager = jd.getAttachmentManager();
+
         System.out.println("Purge old attachments started.");
 
         // To delete old attachments 1 week ago.
@@ -71,10 +74,6 @@ public class PurgeOldAttachmentsJob extends AbstractJob {
         }
 
         System.out.println("Purge old attachments completed.");
-    }
-
-    public void setAttachmentManager(AttachmentManager attachmentManager) {
-        this.attachmentManager = attachmentManager;
     }
 
 }
