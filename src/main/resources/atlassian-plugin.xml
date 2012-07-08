@@ -11,4 +11,20 @@
             url="${project.organization.url}" />
   </plugin-info>
 
+  <job key="purge-old-attachments-job"
+       name="Purge Old Attachment Versions"
+       class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJob"
+       perClusterJob="false" />
+
+  <trigger key="purge-old-attachments-trigger"
+           name="Purge Old Attachments Trigger">
+    <job key="purge-old-attachments-job" />
+    <!-- Run once a day -->
+    <schedule repeat-interval="86400000"/>
+    <managed editable="true"
+             keepingHistory="true"
+             canRunAdhoc="true"
+             canDisable="true" />
+  </trigger>
+
 </atlassian-plugin>
