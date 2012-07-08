@@ -11,6 +11,8 @@
             url="${project.organization.url}" />
   </plugin-info>
 
+  <resource type="i18n" name="i18n" location="i18n" />
+
   <job key="purge-old-attachments-job"
        name="Purge Old Attachment Versions"
        class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJob"
