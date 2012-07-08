@@ -11,6 +11,8 @@
             url="${project.organization.url}" />
   </plugin-info>
 
+  <resource type="i18n" name="i18n" location="i18n" />
+
   <!--
   Workaround for versions prior 4.0.1 to allow dependency injection.
   See: https://developer.atlassian.com/display/CONFDEV/Workaround+pattern+for+autowiring+jobs
