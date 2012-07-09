@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <html>
-	<head>
-		<title>$action.getText("com.drunkendev.confluence.plugins.attachment-tools.config.title")</title>
+  <head>
+    <title>$action.getText("com.drunkendev.confluence.plugins.attachment-tools.config.title")</title>
     <meta name="decorator" content="atl.admin"/>
-	</head>
+  </head>
   <body>
     <p>
       <strong>TODO</strong>: Implement configuration for handling global
@@ -12,16 +12,25 @@
     </p>
     <ul>
       <li>
-        <strong>Global default processor</strong>: switched off by default; a
-        global proceor may be implemented to process attachments for all spaces
-        if a space does not contain its own configuration. That is, any space
-        which provides a processor configuration it overrides the global
-        processor settings.
+        <strong>Process by age</strong>: Prior attachment versions may only be
+        kept if the attachment's modified date is within a given period.
       </li>
       <li>
-        <strong>Attachment archiving</strong>: when purging attachments allow
-        the archiver to move the attachments instead of deleting. This could
-        then be backed-up by a backup process etc.
+        <strong>Process by limits</strong>: Allows specifying a maximum count
+        of prior versions for each attachment.
+      </li>
+      <li>
+        <strong>Process by total size limit</strong>: Allow all versions of an
+        attachment to not exceede a given size limit. If the size limit is
+        imposed then prior versions are deleted until the limit is satisfied.
+      </li>
+      <li>
+        <strong>Report only</strong>: Do not perform any action, just use the
+        email alerting function which must be present.
+      </li>
+      <li>
+        <strong>Email alerting</strong>: Email results to a given email address
+        or user.
       </li>
     </ul>
   </body>
