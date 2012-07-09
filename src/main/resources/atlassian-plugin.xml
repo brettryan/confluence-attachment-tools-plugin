@@ -25,7 +25,7 @@
 
   <job key="purge-old-attachments-job"
        name="Purge Old Attachment Versions"
-       class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJob"
+       class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"
        perClusterJob="false" />
 
   <trigger key="purge-old-attachments-trigger"
