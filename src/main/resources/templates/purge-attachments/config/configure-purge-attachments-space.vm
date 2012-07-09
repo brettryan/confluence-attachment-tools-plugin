@@ -6,40 +6,57 @@
   </head>
   <body>
     #applyDecorator("root")
-      #decoratorParam("helper" $action.helper)
-      #decoratorParam("mode" "view-space-administration")
-      #decoratorParam("context" "space-administration")
+    #decoratorParam("helper" $action.helper)
+    #decoratorParam("mode" "view-space-administration")
+    #decoratorParam("context" "space-administration")
     #applyDecorator ("root")
-      #decoratorParam ("context" "spaceadminpanel")
-      #decoratorParam ("selection" "configure-purge-attachments-space")
-      #decoratorParam ("title" "Attachment Purging")
-      #decoratorParam ("selectedTab" "admin")
-      #decoratorParam("helper" $i18n.helper)
+    #decoratorParam ("context" "spaceadminpanel")
+    #decoratorParam ("selection" "configure-purge-attachments-space")
+    #decoratorParam ("title" "Attachment Purging")
+    #decoratorParam ("selectedTab" "admin")
+    #decoratorParam("helper" $i18n.helper)
     <p>
-      <strong>TODO</strong>: Implement configuration for handling space
-      settings. Settigns may include but are not limited to:
+      <strong>TODO</strong>: Implement ability to turn on/off attachment
+      purging. The following options may be chosen to determin where settings
+      are obtained from.
     </p>
     <ul>
       <li>
-        <strong>Process by age</strong>: Prior attachment versions may only be
-        kept if the attachment's modified date is within a given period.
+        <strong>Disabled</strong>: this space will be ignored even if global
+        options would otherwise process this space.
       </li>
       <li>
-        <strong>Process by limits</strong>: Allows specifying a maximum count
-        of prior versions for each attachment.
+        <strong>Global options (default)</strong>: use the global configured
+        settings for attachment processing.
       </li>
       <li>
-        <strong>Process by total size limit</strong>: Allow all versions of an
-        attachment to not exceede a given size limit. If the size limit is
-        imposed then prior versions are deleted until the limit is satisfied.
-      </li>
-      <li>
-        <strong>Report only</strong>: Do not perform any action, just use the
-        email alerting function which must be present.
-      </li>
-      <li>
-        <strong>Email alerting</strong>: Email results to a given email address
-        or user.
+        <strong>Space level options</strong>: custom configuration defined
+        exclusively for this space. If chosen the user may provide the following
+        options.
+        <ul>
+          <li>
+            <strong>Process by age</strong>: Prior attachment versions may only
+            be kept if the attachment's modified date is within a given period.
+          </li>
+          <li>
+            <strong>Process by limits</strong>: Allows specifying a maximum
+            count of prior versions for each attachment.
+          </li>
+          <li>
+            <strong>Process by total size limit</strong>: Allow all versions of
+            an attachment to not exceede a given size limit. If the size limit
+            is imposed then prior versions are deleted until the limit is
+            satisfied.
+          </li>
+          <li>
+            <strong>Report only</strong>: Do not perform any action, just use
+            the email alerting function which must be present.
+          </li>
+          <li>
+            <strong>Email alerting</strong>: Email results to a given email
+            address or user.
+          </li>
+        </ul>
       </li>
     </ul>
     #end
