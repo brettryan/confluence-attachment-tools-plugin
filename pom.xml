@@ -18,6 +18,7 @@
     <confluence.data.version>3.5</confluence.data.version>
     <amps.version>3.11</amps.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <netbeans.hint.license>dd</netbeans.hint.license>
   </properties>
 
   <dependencies>
