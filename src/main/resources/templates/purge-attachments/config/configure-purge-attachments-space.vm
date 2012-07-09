@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+  <head>
+    <title>$action.getText("com.drunkendev.confluence.plugins.attachment-tools.config.title")</title>
+  </head>
+  <body>
+    <p>
+      <strong>TODO</strong>: Implement configuration for handling space
+      settings. Settigns may include but are not limited to:
+    </p>
+    <ul>
+      <li>
+        <strong>Process by age</strong>: Prior attachment versions may only be
+        kept if the attachment's modified date is within a given period.
+      </li>
+      <li>
+        <strong>Process by limits</strong>: Allows specifying a maximum count
+        of prior versions for each attachment.
+      </li>
+      <li>
+        <strong>Process by total size limit</strong>: Allow all versions of an
+        attachment to not exceede a given size limit. If the size limit is
+        imposed then prior versions are deleted until the limit is satisfied.
+      </li>
+      <li>
+        <strong>Report only</strong>: Do not perform any action, just use the
+        email alerting function which must be present.
+      </li>
+      <li>
+        <strong>Email alerting</strong>: Email results to a given email address
+        or user.
+      </li>
+    </ul>
+  </body>
+</html>
