@@ -1,7 +1,7 @@
 /*
  * PurgeOldAttachmentsJob.java    Jul 9 2012, 04:31
  *
- * Copyright 2010 John Sands (Australia) Ltd. All rights reserved.
+ * Copyright 2012 Drunken Dev. All rights reserved.
  * Use is subject to license terms. This is an unpublished work.
  */
 
