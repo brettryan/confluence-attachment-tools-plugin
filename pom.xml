@@ -18,6 +18,7 @@
     <confluence.data.version>3.5</confluence.data.version>
     <amps.version>3.11</amps.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <netbeans.hint.license>dd</netbeans.hint.license>
   </properties>
 
   <dependencies>
@@ -136,5 +137,11 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <scm>
+    <connection>scm:git:git://github.com/brettryan/confluence-attachment-tools-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:brettryan/confluence-attachment-tools-plugin.git</developerConnection>
+    <url>https://github.com/brettryan/confluence-attachment-tools-plugin</url>
+  </scm>
 
 </project>

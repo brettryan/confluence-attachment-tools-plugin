@@ -1,8 +1,8 @@
 /*
- * PurgeOldAttachmentsJob.java    Jul 9 2012, 04:31
+ * PurgeAttachmentsJob.java    Jul 9 2012, 04:31
  *
  * Copyright 2012 Drunken Dev. All rights reserved.
- * Use is subject to license terms. This is an unpublished work.
+ * Use is subject to license terms.
  */
 
 package com.drunkendev.confluence.plugins.attachments;
@@ -24,15 +24,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author  Brett Ryan
  */
-public class PurgeOldAttachmentsJob extends AbstractJob {
+public class PurgeAttachmentsJob extends AbstractJob {
 
     private static final Logger LOG =
-            LoggerFactory.getLogger(PurgeOldAttachmentsJob.class);
+            LoggerFactory.getLogger(PurgeAttachmentsJob.class);
+    private AttachmentManager attachmentManager;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
      */
-    public PurgeOldAttachmentsJob() {
+    public PurgeAttachmentsJob() {
         System.out.println("Creating purge-old-attachment-job instance.");
     }
 

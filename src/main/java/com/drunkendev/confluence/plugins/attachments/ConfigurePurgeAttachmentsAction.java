@@ -1,8 +1,8 @@
 /*
  * ConfigurePurgeAttachmentsAction.java    Jul 9 2012, 12:37
  *
- * Copyright 2010 John Sands (Australia) Ltd. All rights reserved.
- * Use is subject to license terms. This is an unpublished work.
+ * Copyright 2012 Drunken Dev. All rights reserved.
+ * Use is subject to license terms.
  */
 
 package com.drunkendev.confluence.plugins.attachments;
@@ -12,6 +12,7 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 
 /**
+ * Action to configure global attachment purging.
  *
  * @author  Brett Ryan
  */

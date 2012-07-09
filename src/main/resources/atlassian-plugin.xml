@@ -12,6 +12,15 @@
     <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
+  <web-item key="configure-purge-attachments-space"
+            name="Configure Purge Attachments (Space)"
+            section="system.space.admin/spaceops"
+            weight="40">
+    <label key="Attachment Purging" />
+    <link>/spaces/configure-purge-attachments-space.action?key=$helper.space.key</link>
+    <condition class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceCondition"/>
+  </web-item>
+
   <resource type="i18n" name="i18n" location="i18n" />
 
   <!--
@@ -27,7 +36,7 @@
 
   <job key="purge-old-attachments-job"
        name="Purge Old Attachment Versions"
-       class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJob"
+       class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"
        perClusterJob="false" />
 
   <trigger key="purge-old-attachments-trigger"
@@ -41,8 +50,8 @@
              canDisable="true" />
   </trigger>
 
-  <xwork key="configure-purge-attachments"
-         name="Configure Purge Attachments">
+  <xwork key="configure-purge-attachments" name="Configure Purge Attachments">
+
     <package name="purge-attachments"
              extends="default"
              namespace="/admin/plugins/attachment-tools">
@@ -55,6 +64,17 @@
         <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
       </action>
     </package>
+
+    <package name="purge-attachments-space"
+             extends="default"
+             namespace="/spaces">
+      <default-interceptor-ref name="validatingStack" />
+      <action name="configure-purge-attachments-space"
+              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceAction">
+        <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
+      </action>
+    </package>
+
   </xwork>
 
 </atlassian-plugin>
