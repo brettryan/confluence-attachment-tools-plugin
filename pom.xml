@@ -137,4 +137,10 @@
     </license>
   </licenses>
 
+  <scm>
+    <connection>scm:git:git://github.com/brettryan/confluence-attachment-tools-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:brettryan/confluence-attachment-tools-plugin.git</developerConnection>
+    <url>https://github.com/brettryan/confluence-attachment-tools-plugin</url>
+  </scm>
+
 </project>
