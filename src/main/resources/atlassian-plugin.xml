@@ -33,7 +33,7 @@
            name="Purge Old Attachments Trigger">
     <job key="purge-old-attachments-jobdetail" />
     <!-- Run once a day -->
-    <schedule repeat-interval="86400000"/>
+    <schedule cron-expression="0 0 0 * * ?"/>
     <managed editable="true"
              keepingHistory="true"
              canRunAdhoc="true"

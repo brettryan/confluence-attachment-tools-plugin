@@ -45,8 +45,9 @@ public class PurgeOldAttachmentsJob extends AbstractJob {
         System.out.println("Purge old attachments started.");
 
         // To delete old attachments 1 week ago.
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH, 7);
+        Calendar dateFrom = Calendar.getInstance();
+        dateFrom.add(Calendar.DAY_OF_MONTH, -7);
+        Calendar modDate = Calendar.getInstance();
 
         if (attachmentManager == null) {
             System.out.println("attachment manager is null, why?");
@@ -63,7 +64,11 @@ public class PurgeOldAttachmentsJob extends AbstractJob {
                 List<Attachment> prior = attachmentManager.
                         getPreviousVersions(a);
                 for (Attachment p : prior) {
-                    if (c.after(p.getLastModificationDate())) {
+                    if (p.getLastModificationDate() == null) {
+                        continue;
+                    }
+                    modDate.setTime(p.getLastModificationDate());
+                    if (dateFrom.after(modDate)) {
                         // Log removal
                         System.out.println("Would remove attachment: "
                                 + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
