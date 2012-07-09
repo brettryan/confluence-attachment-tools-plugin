@@ -9,6 +9,7 @@
     <version>${project.version}</version>
     <vendor name="${project.organization.name}"
             url="${project.organization.url}" />
+    <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
   <resource type="i18n" name="i18n" location="i18n" />
@@ -28,5 +29,21 @@
              canRunAdhoc="true"
              canDisable="true" />
   </trigger>
+
+  <xwork key="configure-purge-attachments"
+         name="Configure Purge Attachments">
+    <package name="purge-attachments"
+             extends="default"
+             namespace="/admin/plugins/attachment-tools">
+      <default-interceptor-ref name="defaultStack"/>
+      <action name="configure"
+              method="input"
+              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
+        <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+        <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+        <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+      </action>
+    </package>
+  </xwork>
 
 </atlassian-plugin>
