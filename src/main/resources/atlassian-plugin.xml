@@ -12,6 +12,11 @@
     <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
+  <component key="${project.groupId}.${project.artifactId}.purge-att-setting-svc"
+             name="Purge Attachment Settings Service"
+             alias="purgeAttSettingService"
+             class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsSettingsService"/>
+
   <web-item key="configure-purge-attachments-space"
             name="Configure Purge Attachments (Space)"
             section="system.space.admin/spaceops"

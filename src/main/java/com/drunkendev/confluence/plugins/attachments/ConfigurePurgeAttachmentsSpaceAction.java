@@ -20,10 +20,16 @@ import com.atlassian.confluence.spaces.actions.SpaceAware;
 public class ConfigurePurgeAttachmentsSpaceAction
         extends AbstractSpaceAction implements SpaceAware {
 
+    private PurgeAttachmentsSettingsService settingSvc;
+
     /**
      * Creates a new {@code ConfigurePurgeAttachmentsSpaceAction} instance.
      */
     public ConfigurePurgeAttachmentsSpaceAction() {
+    }
+
+    public void setPurgeAttachmentsSettingsService(PurgeAttachmentsSettingsService purgeAttachmentsSettingsService) {
+        this.settingSvc = purgeAttachmentsSettingsService;
     }
 
     @Override
