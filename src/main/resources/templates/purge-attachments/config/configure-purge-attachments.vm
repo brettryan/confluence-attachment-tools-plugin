@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+	<head>
+		<title>$action.getText("com.drunkendev.confluence.plugins.attachment-tools.config.title")</title>
+    <meta name="decorator" content="atl.admin"/>
+	</head>
+  <body>
+    <p>
+      <strong>TODO</strong>: Implement configuration for handling global
+      settings. Settigns may include but are not limited to:
+    </p>
+    <ul>
+      <li>
+        <strong>Global default processor</strong>: switched off by default; a
+        global proceor may be implemented to process attachments for all spaces
+        if a space does not contain its own configuration. That is, any space
+        which provides a processor configuration it overrides the global
+        processor settings.
+      </li>
+      <li>
+        <strong>Attachment archiving</strong>: when purging attachments allow
+        the archiver to move the attachments instead of deleting. This could
+        then be backed-up by a backup process etc.
+      </li>
+    </ul>
+  </body>
+</html>
