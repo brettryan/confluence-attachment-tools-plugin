@@ -13,8 +13,12 @@ import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.SpaceManager;
 import com.atlassian.quartz.jobs.AbstractJob;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -38,7 +42,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
      * Creates a new {@code PurgeAttachmentsJob} instance.
      */
     public PurgeAttachmentsJob() {
-        System.out.println("Creating purge-old-attachment-job instance.");
+        LOG.debug("Creating purge-old-attachment-job instance.");
     }
 
     public void setAttachmentManager(AttachmentManager attachmentManager) {
@@ -51,75 +55,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     public void setPurgeAttachmentsSettingsService(PurgeAttachmentsSettingsService purgeAttachmentsSettingsService) {
         this.settingSvc = purgeAttachmentsSettingsService;
-    }
-
-    @Override
-    public void doExecute(JobExecutionContext jec) throws JobExecutionException {
-        System.out.println("Purge old attachments started.");
-
-        // To delete old attachments 1 week ago.
-        Calendar dateFrom = Calendar.getInstance();
-        dateFrom.add(Calendar.DAY_OF_MONTH, -7);
-        Calendar modDate = Calendar.getInstance();
-
-        if (attachmentManager == null) {
-            System.out.println("attachment manager is null, why?");
-            return;
-        }
-
-        PurgeAttachmentSettings dflt = settingSvc.getSettings(null);
-
-        //TODO: Not sure if I can do this at the moment.
-//        List<Space> spaces = spaceManager.getAllSpaces();
-//        for (Space space : spaces) {
-//            PurgeAttachmentSettings sng = getSettings(space, dflt);
-//            processSpace(space, sng);
-//        }
-
-
-        //TODO: Need to work out processing by space instead of all at a time.
-        // Assuming attm is an injected AttachmentManager object
-        Iterator<Attachment> i =
-                attachmentManager.getAttachmentDao().
-                findLatestVersionsIterator();
-        while (i.hasNext()) {
-            Attachment a = i.next();
-            PurgeAttachmentSettings stng = getSettings(a, dflt);
-
-            if (stng == null) {
-                continue;
-            }
-
-            if (a.getVersion() > 1) {
-                // Change this to a rules based mechanism instead.
-                List<Attachment> prior = attachmentManager.
-                        getPreviousVersions(a);
-                for (Attachment p : prior) {
-                    if (p.getLastModificationDate() == null) {
-                        continue;
-                    }
-                    modDate.setTime(p.getLastModificationDate());
-                    if (dateFrom.after(modDate)) {
-                        // Log removal
-                        System.out.println("Would remove attachment: "
-                                + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
-                        //attachmentManager.removeAttachmentFromServer(p);
-                    }
-                }
-            }
-        }
-
-        System.out.println("Purge old attachments completed.");
-    }
-
-    //TODO: Not sure if I can do this at the moment.
-    private void processSpace(Space space, PurgeAttachmentSettings sng) {
-        //attachmentManager.getAttachmentDao().
-        //spaceManager.get
-        //Iterator<Attachment> i =
-        //        attachmentManager.getAttachmentDao()
-        //        .
-        //        //findLatestVersionsIterator();
     }
 
     private PurgeAttachmentSettings getSettings(Attachment a, PurgeAttachmentSettings dflt) {
@@ -140,6 +75,127 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sng = dflt;
         }
         return sng;
+    }
+
+    private Map<String, PurgeAttachmentSettings> getAllSpaceSettings() {
+        PurgeAttachmentSettings dflt = settingSvc.getSettings(null);
+        Map<String, PurgeAttachmentSettings> r = new HashMap<String, PurgeAttachmentSettings>();
+        for (Space s : spaceManager.getAllSpaces()) {
+            if (s.getKey() == null || r.containsKey(s.getKey())) {
+                continue;
+            }
+            PurgeAttachmentSettings stg = getSettings(s, dflt);
+            if (stg != null) {
+                r.put(s.getKey(), stg);
+            }
+        }
+        return r;
+    }
+
+    @Override
+    public void doExecute(JobExecutionContext jec) throws JobExecutionException {
+        LOG.info("Purge old attachments started.");
+
+        if (attachmentManager == null) {
+            LOG.error("attachment manager is null, why?");
+            return;
+        }
+
+        processByAttachment();
+
+        LOG.info("Purge old attachments completed.");
+    }
+
+    private void processByAttachment() {
+        // To delete old attachments 1 week ago.
+
+        Iterator<Attachment> i =
+                attachmentManager.getAttachmentDao().
+                findLatestVersionsIterator();
+
+        Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings();
+
+        while (i.hasNext()) {
+            Attachment a = i.next();
+            if (a.getVersion() > 1
+                    && a.getSpace() != null
+                    && sl.containsKey(a.getSpace().getKey())) {
+
+                for (Attachment p : findDeletions(a, sl.get(a.getSpace().getKey()))) {
+                    // Log removal
+                    LOG.warn("Would remove attachment: "
+                            + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
+                    //attachmentManager.removeAttachmentFromServer(p);
+                }
+            }
+        }
+    }
+
+    private List<Attachment> findDeletions(Attachment a, PurgeAttachmentSettings stng) {
+        List<Attachment> prior = attachmentManager.getPreviousVersions(a);
+        if (prior.isEmpty()) {
+            return Collections.<Attachment>emptyList();
+        }
+        Collections.sort(prior, new Comparator<Attachment>() {
+
+            @Override
+            public int compare(Attachment t, Attachment t1) {
+                return t.getVersion() - t1.getVersion();
+            }
+
+        });
+
+        int last = prior.size() - 1;
+        int n = 0;
+        if (stng.isRevisionCountRuleEnabled()) {
+            n = filterRevisionCount(prior, stng.getMaxRevisions());
+            if (n < last) {
+                last = n;
+            }
+        }
+        if (stng.isAgeRuleEnabled()) {
+            n = filterAge(prior, stng.getMaxDaysOld());
+            if (n < last) {
+                last = n;
+            }
+        }
+        if (stng.isMaxSizeRuleEnabled()) {
+            n = filterSize(prior, stng.getMaxTotalSize());
+            if (n < last) {
+                last = n;
+            }
+        }
+        return last >= 0 ? prior.subList(0, last) : Collections.<Attachment>emptyList();
+    }
+
+    private int filterRevisionCount(List<Attachment> prior, int maxRevisions) {
+        return (maxRevisions <= prior.size() ? prior.size() : maxRevisions) - 1;
+    }
+
+    private int filterAge(List<Attachment> prior, int maxDaysOld) {
+        Calendar dateFrom = Calendar.getInstance();
+        dateFrom.add(Calendar.DAY_OF_MONTH, -7);
+        Calendar modDate = Calendar.getInstance();
+
+        for (int i = 0; i < prior.size(); i++) {
+            modDate.setTime(prior.get(i).getLastModificationDate());
+            if (dateFrom.after(modDate)) {
+                return i - 1;
+            }
+        }
+        return prior.size();
+    }
+
+    private int filterSize(List<Attachment> prior, long maxTotalSize) {
+        long s = 0;
+
+        for (int i = 0; i < prior.size(); i++) {
+            s += prior.get(i).getFileSize();
+            if (s > maxTotalSize) {
+                return i - 1;
+            }
+        }
+        return prior.size();
     }
 
 }
