@@ -34,7 +34,7 @@
   -->
   <component key="purge-old-attachments-jobdetail"
              name="Purge attachments job-detail"
-             class="com.drunkendev.confluence.plugins.attachments.PurgeOldAttachmentsJobDetail">
+             class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJobDetail">
     <description>Confluence &lt; 4.0.1 compatible job detail.</description>
     <interface>org.quartz.JobDetail</interface>
   </component>

@@ -15,17 +15,17 @@ import org.quartz.JobDetail;
  *
  * @author  Brett Ryan
  */
-public class PurgeOldAttachmentsJobDetail extends JobDetail {
+public class PurgeAttachmentsJobDetail extends JobDetail {
 
     private AttachmentManager attachmentManager;
 
     /**
      * Creates a new {@code PurgeOldAttachmentsJobDetail} instance.
      */
-    public PurgeOldAttachmentsJobDetail(AttachmentManager attachmentManager) {
+    public PurgeAttachmentsJobDetail(AttachmentManager attachmentManager) {
         super();
-        setName(PurgeOldAttachmentsJobDetail.class.getSimpleName());
-        setJobClass(PurgeOldAttachmentsJob.class);
+        setName(PurgeAttachmentsJobDetail.class.getSimpleName());
+        setJobClass(PurgeAttachmentsJob.class);
         this.attachmentManager = attachmentManager;
     }
 
