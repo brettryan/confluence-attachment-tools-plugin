@@ -24,7 +24,8 @@ public class PurgeAttachmentsSettingsService {
     /**
      * Creates a new {@code PurgeAttachmentsSettingsService} instance.
      */
-    public PurgeAttachmentsSettingsService() {
+    public PurgeAttachmentsSettingsService(BandanaManager bandanaManager) {
+        this.bandanaManager = bandanaManager;
     }
 
     public void setSettings(String spaceKey, PurgeAttachmentSettings settings) {

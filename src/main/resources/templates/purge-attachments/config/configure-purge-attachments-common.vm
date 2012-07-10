@@ -1,0 +1,78 @@
+
+<h2>Processing Rules</h2>
+
+<fieldset class="group">
+  <div class="checkbox">
+    <legend><span>Maximum days old</span></legend>
+    <input class="checkbox" type="checkbox" id="processing-age" name="processing-age" />
+    <label for="processing-age">Enable</label>
+    <div class="description">
+      Enable to purge attachments which are greater than a set days old limit.
+    </div>
+  </div>
+  <div class="field-group">
+    <label for="processing-age-count">Maximum days old</label>
+    <input class="text short-field" type="text" id="processing-age-count" name="processing-age-count"/>
+    <div class="description">
+      Maximum days old for prior attachment versions.
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="group">
+  <div class="checkbox">
+    <legend><span>Version Limit</span></legend>
+    <input class="checkbox" type="checkbox" id="processing-versions" name="processing-versions" />
+    <label for="processing-versions">Enable</label>
+    <div class="description">
+      Enable to purge attachments which are greater than a set days old limit.
+    </div>
+  </div>
+  <div class="field-group">
+    <label for="processing-versions-count">Maximum prior versions</label>
+    <input class="text short-field" type="text" id="processing-versions-days" name="processing-versions-count"/>
+    <div class="description">
+      Maximum count of prior versions to keep.
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="group">
+  <div class="checkbox">
+    <legend><span>Maximum Size</span></legend>
+    <input class="checkbox" type="checkbox" id="processing-size" name="processing-size" />
+    <label for="processing-size">Enable</label>
+    <div class="description">
+      Enable to purge attachments which have a size greater than a given value.
+    </div>
+  </div>
+  <div class="field-group">
+    <label for="processing-size-count">Maximum attachment size</label>
+    <input class="text short-field" type="text" id="processing-size-days" name="processing-size-count"/>
+    <div class="description">
+      Maximum size (MB) of all versions.
+    </div>
+  </div>
+</fieldset>
+
+
+<h2>Email Report</h2>
+
+<fieldset class="group">
+  <div class="checkbox">
+    <legend><span>Report Only</span></legend>
+    <input class="checkbox" type="checkbox" id="report-only" name="report-only" />
+    <label for="report-only">Enable Report Only Mode</label>
+    <div class="description">
+      If enabled no processing will be performed.
+    </div>
+  </div>
+  <div class="field-group">
+    <label for="report-address">Report Address</label>
+    <input class="text long-field" type="text" id="report-address" name="report-address"/>
+    <div class="description">
+      Send email report to this email address.
+    </div>
+  </div>
+</fieldset>
+
