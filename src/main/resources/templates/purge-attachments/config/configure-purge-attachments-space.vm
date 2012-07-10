@@ -25,21 +25,27 @@
       <fieldset class="group">
         <legend><span>Enable Purging</span></legend>
         <div class="radio">
-          <input class="radio" type="radio" name="mode" id="mode-1" value="1">
+          <input class="radio" type="radio" name="mode" id="mode-1" value="1"
+#if ($mode == 1) checked="checked" #end
+                 />
           <label for="mode-1">Disabled</label>
           <div class="description">
             Processing of this space will be ignored.
           </div>
         </div>
         <div class="radio">
-          <input class="radio" type="radio"  name="mode" id="mode-2" value="2" checked="checked">
+          <input class="radio" type="radio"  name="mode" id="mode-2" value="2"
+#if ($mode == 0 || $mode == 2) checked="checked" #end
+                 />
           <label for="mode-2">Enabled using global options</label>
           <div class="description">
             Use globally configured options which may be disabled.
           </div>
         </div>
         <div class="radio">
-          <input class="radio" type="radio"  name="mode" id="mode-3" value="3">
+          <input class="radio" type="radio"  name="mode" id="mode-3" value="3"
+#if ($mode == 3) checked="checked" #end
+                 />
           <label for="mode-3">Enabled using space options</label>
           <div class="description">
             Use custom settings specified here.

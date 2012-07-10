@@ -4,7 +4,7 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Maximum days old</span></legend>
-    <input class="checkbox" type="checkbox" id="ageRuleEnabled" name="ageRuleEnabled"
+    <input class="checkbox" type="checkbox" id="ageRuleEnabled" name="ageRuleEnabled" value="true"
       #if ($ageRuleEnabled) checked="checked" #end
       />
     <label for="ageRuleEnabled">Enable</label>
@@ -14,7 +14,8 @@
   </div>
   <div class="field-group">
     <label for="maxDaysOld">Maximum days old</label>
-    <input class="text short-field" type="text" id="maxDaysOld" name="maxDaysOld"/>
+    <input class="text short-field" type="text" id="maxDaysOld" name="maxDaysOld"
+           value="$maxDaysOld"/>
     <div class="description">
       Maximum days old for prior attachment versions.
     </div>
@@ -24,7 +25,7 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Version Limit</span></legend>
-    <input class="checkbox" type="checkbox" id="revisionCountRuleEnabled" name="revisionCountRuleEnabled"
+    <input class="checkbox" type="checkbox" id="revisionCountRuleEnabled" name="revisionCountRuleEnabled" value="true"
       #if ($revisionCountRuleEnabled) checked="checked" #end
       />
     <label for="revisionCountRuleEnabled">Enable</label>
@@ -34,7 +35,8 @@
   </div>
   <div class="field-group">
     <label for="maxRevisions">Maximum prior versions</label>
-    <input class="text short-field" type="text" id="maxRevisions" name="maxRevisions"/>
+    <input class="text short-field" type="text" id="maxRevisions" name="maxRevisions"
+           value="$maxRevisions"/>
     <div class="description">
       Maximum count of prior versions to keep.
     </div>
@@ -44,7 +46,7 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Maximum Size</span></legend>
-    <input class="checkbox" type="checkbox" id="maxSizeRuleEnabled" name="maxSizeRuleEnabled"
+    <input class="checkbox" type="checkbox" id="maxSizeRuleEnabled" name="maxSizeRuleEnabled" value="true"
       #if ($maxSizeRuleEnabled) checked="checked" #end
       />
     <label for="maxSizeRuleEnabled">Enable</label>
@@ -54,7 +56,8 @@
   </div>
   <div class="field-group">
     <label for="maxTotalSize">Maximum attachment size</label>
-    <input class="text short-field" type="text" id="maxTotalSize" name="maxTotalSize"/>
+    <input class="text short-field" type="text" id="maxTotalSize" name="maxTotalSize"
+           value="$maxTotalSize"/>
     <div class="description">
       Maximum size (MB) of all versions.
     </div>
@@ -67,7 +70,7 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Report Only</span></legend>
-    <input class="checkbox" type="checkbox" id="reportOnly" name="reportOnly"
+    <input class="checkbox" type="checkbox" id="reportOnly" name="reportOnly" value="true"
       #if ($reportOnly) checked="checked" #end
       />
     <label for="reportOnly">Enable Report Only Mode</label>
@@ -77,7 +80,8 @@
   </div>
   <div class="field-group">
     <label for="reportEmailAddress">Report Address</label>
-    <input class="text long-field" type="text" id="reportEmailAddress" name="reportEmailAddress"/>
+    <input class="text long-field" type="text" id="reportEmailAddress" name="reportEmailAddress"
+           value="$generalUtil.htmlEncode($!reportEmailAddress)"/>
     <div class="description">
       Send email report to this email address.
     </div>
