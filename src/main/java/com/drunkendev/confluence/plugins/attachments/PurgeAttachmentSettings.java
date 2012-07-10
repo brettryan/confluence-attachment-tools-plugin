@@ -29,7 +29,7 @@ public class PurgeAttachmentSettings implements Serializable {
     private boolean revisionCountRuleEnabled;
     private int maxRevisions;
     private boolean maxSizeRuleEnabled;
-    private int maxTotalSize;
+    private long maxTotalSize;
     private boolean reportOnly;
     private String reportEmailAddress;
 
@@ -126,14 +126,14 @@ public class PurgeAttachmentSettings implements Serializable {
     /**
      * @return the maxTotalSize
      */
-    public int getMaxTotalSize() {
+    public long getMaxTotalSize() {
         return maxTotalSize;
     }
 
     /**
      * @param maxTotalSize the maxTotalSize to set
      */
-    public void setMaxTotalSize(int maxTotalSize) {
+    public void setMaxTotalSize(long maxTotalSize) {
         this.maxTotalSize = maxTotalSize;
     }
 

@@ -26,7 +26,7 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
     private boolean revisionCountRuleEnabled;
     private int maxRevisions;
     private boolean maxSizeRuleEnabled;
-    private int maxTotalSize;
+    private long maxTotalSize;
     private boolean reportOnly;
     private String reportEmailAddress;
 
@@ -185,14 +185,14 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
     /**
      * @return the maxTotalSize
      */
-    public int getMaxTotalSize() {
+    public long getMaxTotalSize() {
         return maxTotalSize;
     }
 
     /**
      * @param maxTotalSize the maxTotalSize to set
      */
-    public void setMaxTotalSize(int maxTotalSize) {
+    public void setMaxTotalSize(long maxTotalSize) {
         this.maxTotalSize = maxTotalSize;
     }
 
