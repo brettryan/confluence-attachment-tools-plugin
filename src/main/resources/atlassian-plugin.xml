@@ -51,7 +51,6 @@
              namespace="/admin/plugins/attachment-tools">
       <default-interceptor-ref name="defaultStack"/>
       <action name="configure"
-              method="input"
               class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
         <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
         <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
@@ -64,7 +63,7 @@
              namespace="/spaces">
       <default-interceptor-ref name="validatingStack" />
       <action name="configure-purge-attachments-space"
-              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceAction">
+              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
         <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
       </action>
     </package>

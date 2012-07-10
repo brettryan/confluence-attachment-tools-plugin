@@ -7,8 +7,9 @@
 
 package com.drunkendev.confluence.plugins.attachments;
 
-import com.atlassian.confluence.core.Administrative;
-import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
+import com.atlassian.confluence.spaces.actions.SpaceAware;
 
 
 /**
@@ -16,8 +17,10 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
  *
  * @author  Brett Ryan
  */
-public class ConfigurePurgeAttachmentsAction extends ConfluenceActionSupport
-        implements Administrative {
+public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction
+        implements SpaceAware {
+
+    private PurgeAttachmentsSettingsService settingSvc;
 
     /**
      * Creates a new {@code ConfigurePurgeAttachmentsAction} instance.
@@ -25,16 +28,31 @@ public class ConfigurePurgeAttachmentsAction extends ConfluenceActionSupport
     public ConfigurePurgeAttachmentsAction() {
     }
 
-    public String input() {
-        return INPUT;
+    public void setPurgeAttachmentsSettingsService(PurgeAttachmentsSettingsService purgeAttachmentsSettingsService) {
+        this.settingSvc = purgeAttachmentsSettingsService;
+    }
+
+    @Override
+    public boolean isSpaceRequired() {
+        return false;
+    }
+
+    @Override
+    public boolean isViewPermissionRequired() {
+        return true;
     }
 
     @Override
     public boolean isPermitted() {
-        //permissionManager.
-        //permissionManager.hasPermission(user, Permission.EDIT, target);
-        return super.isPermitted();
-
+        if (getRemoteUser() == null) {
+            return false;
+        }
+        if (getSpace() == null) {
+            return permissionManager.isConfluenceAdministrator(getRemoteUser());
+        }
+        return permissionManager.hasPermission(getRemoteUser(),
+                                               Permission.ADMINISTER,
+                                               getSpace());
     }
 
 }
