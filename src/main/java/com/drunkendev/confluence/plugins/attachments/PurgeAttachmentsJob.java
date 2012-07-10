@@ -7,11 +7,15 @@
 
 package com.drunkendev.confluence.plugins.attachments;
 
+import com.atlassian.confluence.mail.template.ConfluenceMailQueueItem;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.SpaceManager;
+import com.atlassian.core.task.MultiQueueTaskManager;
+import com.atlassian.mail.MailException;
 import com.atlassian.quartz.jobs.AbstractJob;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -37,6 +42,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private AttachmentManager attachmentManager;
     private SpaceManager spaceManager;
     private PurgeAttachmentsSettingsService settingSvc;
+    private MultiQueueTaskManager mailQueueTaskManager;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
@@ -57,11 +63,8 @@ public class PurgeAttachmentsJob extends AbstractJob {
         this.settingSvc = purgeAttachmentsSettingsService;
     }
 
-    private PurgeAttachmentSettings getSettings(Attachment a, PurgeAttachmentSettings dflt) {
-        if (a == null) {
-            return null;
-        }
-        return getSettings(a.getSpace(), dflt);
+    public void setMultiQueueTaskManager(MultiQueueTaskManager mailQueueTaskManager) {
+        this.mailQueueTaskManager = mailQueueTaskManager;
     }
 
     private PurgeAttachmentSettings getSettings(Space space, PurgeAttachmentSettings dflt) {
@@ -77,8 +80,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
         return sng;
     }
 
-    private Map<String, PurgeAttachmentSettings> getAllSpaceSettings() {
-        PurgeAttachmentSettings dflt = settingSvc.getSettings(null);
+    private Map<String, PurgeAttachmentSettings> getAllSpaceSettings(PurgeAttachmentSettings dflt) {
         Map<String, PurgeAttachmentSettings> r = new HashMap<String, PurgeAttachmentSettings>();
         for (Space s : spaceManager.getAllSpaces()) {
             if (s.getKey() == null || r.containsKey(s.getKey())) {
@@ -96,24 +98,15 @@ public class PurgeAttachmentsJob extends AbstractJob {
     public void doExecute(JobExecutionContext jec) throws JobExecutionException {
         LOG.info("Purge old attachments started.");
 
-        if (attachmentManager == null) {
-            LOG.error("attachment manager is null, why?");
-            return;
-        }
-
-        processByAttachment();
-
-        LOG.info("Purge old attachments completed.");
-    }
-
-    private void processByAttachment() {
-        // To delete old attachments 1 week ago.
-
         Iterator<Attachment> i =
                 attachmentManager.getAttachmentDao().
                 findLatestVersionsIterator();
 
-        Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings();
+        PurgeAttachmentSettings systemSettings = settingSvc.getSettings(null);
+        Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings(systemSettings);
+
+        Map<String, List<MailLogEntry>> mailEntries = new HashMap<String, List<MailLogEntry>>();
+        //List<MailLogEntry> mailEntries = new ArrayList<MailLogEntry>();
 
         while (i.hasNext()) {
             Attachment a = i.next();
@@ -121,14 +114,41 @@ public class PurgeAttachmentsJob extends AbstractJob {
                     && a.getSpace() != null
                     && sl.containsKey(a.getSpace().getKey())) {
 
-                for (Attachment p : findDeletions(a, sl.get(a.getSpace().getKey()))) {
-                    // Log removal
-                    LOG.warn("Would remove attachment: "
-                            + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
-                    //attachmentManager.removeAttachmentFromServer(p);
+                PurgeAttachmentSettings st = sl.get(a.getSpace().getKey());
+
+                List<Attachment> toDelete = findDeletions(a, st);
+                if (toDelete.size() > 0) {
+                    for (Attachment p : toDelete) {
+                        // Log removal
+                        LOG.warn("Would remove attachment: "
+                                + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
+                        //attachmentManager.removeAttachmentFromServer(p);
+                    }
+                    MailLogEntry mle = new MailLogEntry(a, toDelete);
+                    if (st != systemSettings && StringUtils.isNotBlank(st.getReportEmailAddress())) {
+                        if (!mailEntries.containsKey(st.getReportEmailAddress())) {
+                            mailEntries.put(st.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                        }
+                        mailEntries.get(st.getReportEmailAddress()).add(mle);
+                    }
+                    //TODO: I know this will log twice if system email and space
+                    //      email are the same, will fix later, just hacking atm.
+                    if (StringUtils.isNotBlank(systemSettings.getReportEmailAddress())) {
+                        if (!mailEntries.containsKey(systemSettings.getReportEmailAddress())) {
+                            mailEntries.put(systemSettings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                        }
+                        mailEntries.get(systemSettings.getReportEmailAddress()).add(mle);
+                    }
                 }
             }
         }
+        try {
+            mailResults(mailEntries);
+        } catch (MailException ex) {
+            LOG.error("Exception raised while trying to mail results.", ex);
+        }
+
+        LOG.info("Purge old attachments completed.");
     }
 
     private List<Attachment> findDeletions(Attachment a, PurgeAttachmentSettings stng) {
@@ -196,6 +216,47 @@ public class PurgeAttachmentsJob extends AbstractJob {
             }
         }
         return prior.size();
+    }
+
+    private void mailResults(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
+
+        for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
+            StringBuilder sb = new StringBuilder();
+            for (MailLogEntry me : n.getValue()) {
+                Attachment a = me.getAttachment();
+                sb.append(a.getDisplayTitle()).append("\n");
+                sb.append("Current Version: ").append(a.getAttachmentVersion());
+                sb.append("\n");
+            }
+            ConfluenceMailQueueItem mail = new ConfluenceMailQueueItem(
+                    n.getKey(),
+                    "Purged attachments",
+                    sb.toString(),
+                    "text/plain");
+            mailQueueTaskManager.getTaskQueue("mail").addTask(mail);
+            LOG.debug("Mail Sent");
+        }
+
+    }
+
+
+    /**
+     *
+     */
+    private class MailLogEntry {
+
+        private Attachment attachment;
+        private List<Attachment> deleted;
+
+        private MailLogEntry(Attachment a, List<Attachment> deleted) {
+            this.attachment = a;
+            this.deleted = deleted;
+        }
+
+        private Attachment getAttachment() {
+            return attachment;
+        }
+
     }
 
 }
