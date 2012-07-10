@@ -51,20 +51,36 @@
              namespace="/admin/plugins/attachment-tools">
       <default-interceptor-ref name="defaultStack"/>
       <action name="configure"
+              method="doDefault"
               class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
         <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
         <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
         <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+      </action>
+      <action name="doconfigure"
+              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
+        <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+        <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments.vm</result>
+        <result name="success" type="redirect">/admin/plugins/attachment-tools/configure.action</result>
       </action>
     </package>
 
     <package name="purge-attachments-space"
              extends="default"
              namespace="/spaces">
-      <default-interceptor-ref name="validatingStack" />
+      <default-interceptor-ref name="defaultStack" />
       <action name="configure-purge-attachments-space"
+              method="doDefault"
               class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
+        <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
+        <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
         <result name="success" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
+      </action>
+      <action name="doconfigure-purge-attachments-space"
+              class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsAction">
+        <result name="input" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
+        <result name="error" type="velocity">/templates/purge-attachments/config/configure-purge-attachments-space.vm</result>
+        <result name="success" type="redirect">/spaces/configure-purge-attachments-space.action?key=${key}</result>
       </action>
     </package>
 

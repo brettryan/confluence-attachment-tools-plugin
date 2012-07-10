@@ -16,7 +16,11 @@
       #decoratorParam ("selectedTab" "admin")
       #decoratorParam ("helper" $i18n.helper)
 
-    <form action="#" method="post" class="aui">
+    #parse ( "/template/includes/actionerrors.vm" )
+
+    <form action="doconfigure-purge-attachments-space.action" method="post" class="aui">
+      <input type="hidden" name="key" value="$space.key" />
+
       <h2>Attachment Purging</h2>
       <fieldset class="group">
         <legend><span>Enable Purging</span></legend>

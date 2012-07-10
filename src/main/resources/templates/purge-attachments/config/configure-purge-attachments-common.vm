@@ -4,15 +4,17 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Maximum days old</span></legend>
-    <input class="checkbox" type="checkbox" id="processing-age" name="processing-age" />
-    <label for="processing-age">Enable</label>
+    <input class="checkbox" type="checkbox" id="ageRuleEnabled" name="ageRuleEnabled"
+      #if ($ageRuleEnabled) checked="checked" #end
+      />
+    <label for="ageRuleEnabled">Enable</label>
     <div class="description">
       Enable to purge attachments which are greater than a set days old limit.
     </div>
   </div>
   <div class="field-group">
-    <label for="processing-age-count">Maximum days old</label>
-    <input class="text short-field" type="text" id="processing-age-count" name="processing-age-count"/>
+    <label for="maxDaysOld">Maximum days old</label>
+    <input class="text short-field" type="text" id="maxDaysOld" name="maxDaysOld"/>
     <div class="description">
       Maximum days old for prior attachment versions.
     </div>
@@ -22,15 +24,17 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Version Limit</span></legend>
-    <input class="checkbox" type="checkbox" id="processing-versions" name="processing-versions" />
-    <label for="processing-versions">Enable</label>
+    <input class="checkbox" type="checkbox" id="revisionCountRuleEnabled" name="revisionCountRuleEnabled"
+      #if ($revisionCountRuleEnabled) checked="checked" #end
+      />
+    <label for="revisionCountRuleEnabled">Enable</label>
     <div class="description">
-      Enable to purge attachments which are greater than a set days old limit.
+      Enable to purge attachments who exceed a given version limit.
     </div>
   </div>
   <div class="field-group">
-    <label for="processing-versions-count">Maximum prior versions</label>
-    <input class="text short-field" type="text" id="processing-versions-days" name="processing-versions-count"/>
+    <label for="maxRevisions">Maximum prior versions</label>
+    <input class="text short-field" type="text" id="maxRevisions" name="maxRevisions"/>
     <div class="description">
       Maximum count of prior versions to keep.
     </div>
@@ -40,15 +44,17 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Maximum Size</span></legend>
-    <input class="checkbox" type="checkbox" id="processing-size" name="processing-size" />
-    <label for="processing-size">Enable</label>
+    <input class="checkbox" type="checkbox" id="maxSizeRuleEnabled" name="maxSizeRuleEnabled"
+      #if ($maxSizeRuleEnabled) checked="checked" #end
+      />
+    <label for="maxSizeRuleEnabled">Enable</label>
     <div class="description">
       Enable to purge attachments which have a size greater than a given value.
     </div>
   </div>
   <div class="field-group">
-    <label for="processing-size-count">Maximum attachment size</label>
-    <input class="text short-field" type="text" id="processing-size-days" name="processing-size-count"/>
+    <label for="maxTotalSize">Maximum attachment size</label>
+    <input class="text short-field" type="text" id="maxTotalSize" name="maxTotalSize"/>
     <div class="description">
       Maximum size (MB) of all versions.
     </div>
@@ -61,15 +67,17 @@
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Report Only</span></legend>
-    <input class="checkbox" type="checkbox" id="report-only" name="report-only" />
-    <label for="report-only">Enable Report Only Mode</label>
+    <input class="checkbox" type="checkbox" id="reportOnly" name="reportOnly"
+      #if ($reportOnly) checked="checked" #end
+      />
+    <label for="reportOnly">Enable Report Only Mode</label>
     <div class="description">
       If enabled no processing will be performed.
     </div>
   </div>
   <div class="field-group">
-    <label for="report-address">Report Address</label>
-    <input class="text long-field" type="text" id="report-address" name="report-address"/>
+    <label for="reportEmailAddress">Report Address</label>
+    <input class="text long-field" type="text" id="reportEmailAddress" name="reportEmailAddress"/>
     <div class="description">
       Send email report to this email address.
     </div>
