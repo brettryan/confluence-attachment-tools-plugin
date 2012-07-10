@@ -6,7 +6,8 @@
     <meta name="decorator" content="atl.admin"/>
   </head>
   <body>
-    <form action="#" method="post" class="aui">
+    #parse ( "/template/includes/actionerrors.vm" )
+    <form action="doconfigure.action" method="POST" class="aui">
       #parse ("/templates/purge-attachments/config/configure-purge-attachments-common.vm")
 
       <div class="buttons-container">
