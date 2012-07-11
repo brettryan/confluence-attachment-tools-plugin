@@ -10,6 +10,7 @@ package com.drunkendev.confluence.plugins.attachments;
 import com.atlassian.confluence.mail.template.ConfluenceMailQueueItem;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.SpaceManager;
 import com.atlassian.core.task.MultiQueueTaskManager;
@@ -43,6 +44,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private SpaceManager spaceManager;
     private PurgeAttachmentsSettingsService settingSvc;
     private MultiQueueTaskManager mailQueueTaskManager;
+    private SettingsManager settingsManager;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
@@ -65,6 +67,10 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     public void setMultiQueueTaskManager(MultiQueueTaskManager mailQueueTaskManager) {
         this.mailQueueTaskManager = mailQueueTaskManager;
+    }
+
+    public void setSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
     }
 
     private PurgeAttachmentSettings getSettings(Space space, PurgeAttachmentSettings dflt) {
@@ -108,7 +114,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 attachmentManager.getAttachmentDao().
                 findLatestVersionsIterator();
 
-        PurgeAttachmentSettings systemSettings = settingSvc.getSettings(null);
+        PurgeAttachmentSettings systemSettings = settingSvc.getSettings();
         Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings(systemSettings);
 
         Map<String, List<MailLogEntry>> mailEntries = new HashMap<String, List<MailLogEntry>>();
@@ -123,16 +129,18 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 PurgeAttachmentSettings st = sl.get(a.getSpace().getKey());
 
                 List<Attachment> toDelete = findDeletions(a, st);
+                List<Integer> deletedVersions = new ArrayList<Integer>();
+                for (Attachment tt : toDelete) {
+                    deletedVersions.add(tt.getVersion());
+                }
                 if (toDelete.size() > 0) {
                     for (Attachment p : toDelete) {
-                        // Log removal
-                        LOG.warn("Would remove attachment: "
-                                + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
-                        if (!st.isReportOnly() && !systemSettings.isReportOnly()) {
-                            //attachmentManager.removeAttachmentFromServer(p);
+                        if (st.isReportOnly() || systemSettings.isReportOnly()) {
+                        } else {
+                            attachmentManager.removeAttachmentFromServer(p);
                         }
                     }
-                    MailLogEntry mle = new MailLogEntry(a, toDelete);
+                    MailLogEntry mle = new MailLogEntry(a, deletedVersions, st.isReportOnly() || systemSettings.isReportOnly(), st == systemSettings);
                     if (st != systemSettings && StringUtils.isNotBlank(st.getReportEmailAddress())) {
                         if (!mailEntries.containsKey(st.getReportEmailAddress())) {
                             mailEntries.put(st.getReportEmailAddress(), new ArrayList<MailLogEntry>());
@@ -214,7 +222,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
         for (int i = 0; i < prior.size(); i++) {
             modDate.setTime(prior.get(i).getLastModificationDate());
-            if (dateFrom.before(modDate)) {
+            if (dateFrom.after(modDate)) {
                 return i;
             }
         }
@@ -223,10 +231,11 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     private int filterSize(List<Attachment> prior, long maxTotalSize) {
         long s = 0;
+        long m = maxTotalSize * 1024;
 
         for (int i = 0; i < prior.size(); i++) {
             s += prior.get(i).getFileSize();
-            if (s > maxTotalSize) {
+            if (s > m) {
                 return i;
             }
         }
@@ -234,6 +243,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
     }
 
     private void mailResults(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
+        String p = settingsManager.getGlobalSettings().getBaseUrl();
 
         for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
             StringBuilder sb = new StringBuilder();
@@ -242,16 +252,21 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
                 sb
                         .append(a.getDisplayTitle()).append("\n")
-                        .append("    URL: ").append(a.getContent().getAttachmentsUrlPath()).append("\n")
+                        .append("    URL: ").append(p).append(a.getContent().getAttachmentsUrlPath()).append("\n")
+                        .append("    File Size: ").append(a.getNiceFileSize()).append("\n")
+                        .append("    Space: ").append(a.getSpace().getName()).append("\n")
+                        .append("    Space URL: ").append(p).append(a.getSpace().getUrlPath()).append("\n")
+                        .append("    Report Only: ").append(me.isReportOnly() ? "Yes" : "No").append("\n")
+                        .append("    Global Settings: ").append(me.isGlobalSettings() ? "Yes" : "No").append("\n")
                         .append("    Current Version: ").append(a.getAttachmentVersion()).append("\n");
 
                 sb.append("    Versions Deleted: ");
                 int c = 0;
-                for (Attachment dl : me.getDeleted()) {
+                for (Integer dl : me.getDeletedVersions()) {
                     if (c++ > 0) {
                         sb.append(", ");
                     }
-                    sb.append(dl.getVersion());
+                    sb.append(dl);
                 }
                 sb.append("\n\n");
             }
@@ -274,19 +289,31 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private class MailLogEntry {
 
         private Attachment attachment;
-        private List<Attachment> deleted;
+        private List<Integer> deletedVersions;
+        private boolean reportOnly;
+        private boolean globalSettings;
 
-        private MailLogEntry(Attachment a, List<Attachment> deleted) {
+        private MailLogEntry(Attachment a, List<Integer> deletedVersions, boolean reportOnly, boolean globalSettings) {
             this.attachment = a;
-            this.deleted = deleted;
+            this.deletedVersions = deletedVersions;
+            this.reportOnly = reportOnly;
+            this.globalSettings = globalSettings;
         }
 
         private Attachment getAttachment() {
             return attachment;
         }
 
-        private List<Attachment> getDeleted() {
-            return deleted;
+        private List<Integer> getDeletedVersions() {
+            return deletedVersions;
+        }
+
+        private boolean isReportOnly() {
+            return reportOnly;
+        }
+
+        private boolean isGlobalSettings() {
+            return globalSettings;
         }
 
     }
