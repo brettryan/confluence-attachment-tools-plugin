@@ -72,11 +72,17 @@ public class PurgeAttachmentsJob extends AbstractJob {
             return null;
         }
         PurgeAttachmentSettings sng = settingSvc.getSettings(space.getKey());
+
+        // Use global.
+        if (sng == null || sng.getMode() == PurgeAttachmentSettings.MODE_GLOBAL) {
+            return dflt;
+        }
+
+        // Explicitely disabled.
         if (sng != null && sng.getMode() == PurgeAttachmentSettings.MODE_DISABLED) {
             sng = null;
-        } else if (sng == null || sng.getMode() == PurgeAttachmentSettings.MODE_GLOBAL) {
-            sng = dflt;
         }
+
         return sng;
     }
 
@@ -122,7 +128,9 @@ public class PurgeAttachmentsJob extends AbstractJob {
                         // Log removal
                         LOG.warn("Would remove attachment: "
                                 + p.getDisplayTitle() + " (" + p.getExportPath() + ")");
-                        //attachmentManager.removeAttachmentFromServer(p);
+                        if (!st.isReportOnly() && !systemSettings.isReportOnly()) {
+                            //attachmentManager.removeAttachmentFromServer(p);
+                        }
                     }
                     MailLogEntry mle = new MailLogEntry(a, toDelete);
                     if (st != systemSettings && StringUtils.isNotBlank(st.getReportEmailAddress())) {
@@ -157,7 +165,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
             return Collections.<Attachment>emptyList();
         }
         Collections.sort(prior, new Comparator<Attachment>() {
-
             @Override
             public int compare(Attachment t, Attachment t1) {
                 return t.getVersion() - t1.getVersion();
@@ -165,45 +172,53 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
         });
 
-        int last = prior.size() - 1;
+        int to = -1;
         int n = 0;
         if (stng.isRevisionCountRuleEnabled()) {
             n = filterRevisionCount(prior, stng.getMaxRevisions());
-            if (n < last) {
-                last = n;
+            if (n > to) {
+                to = n;
             }
         }
         if (stng.isAgeRuleEnabled()) {
             n = filterAge(prior, stng.getMaxDaysOld());
-            if (n < last) {
-                last = n;
+            if (n < to) {
+                to = n;
             }
         }
         if (stng.isMaxSizeRuleEnabled()) {
             n = filterSize(prior, stng.getMaxTotalSize());
-            if (n < last) {
-                last = n;
+            if (n < to) {
+                to = n;
             }
         }
-        return last >= 0 ? prior.subList(0, last) : Collections.<Attachment>emptyList();
+        if (to >= 0 && to < prior.size()) {
+            return prior.subList(0, to);
+        } else {
+            return Collections.<Attachment>emptyList();
+        }
     }
 
     private int filterRevisionCount(List<Attachment> prior, int maxRevisions) {
-        return (maxRevisions <= prior.size() ? prior.size() : maxRevisions) - 1;
+        if (prior.size() > maxRevisions) {
+            return (prior.size() - maxRevisions) + 1;
+        } else {
+            return -1;
+        }
     }
 
     private int filterAge(List<Attachment> prior, int maxDaysOld) {
         Calendar dateFrom = Calendar.getInstance();
-        dateFrom.add(Calendar.DAY_OF_MONTH, -7);
+        dateFrom.add(Calendar.DAY_OF_MONTH, -(maxDaysOld));
         Calendar modDate = Calendar.getInstance();
 
         for (int i = 0; i < prior.size(); i++) {
             modDate.setTime(prior.get(i).getLastModificationDate());
-            if (dateFrom.after(modDate)) {
-                return i - 1;
+            if (dateFrom.before(modDate)) {
+                return i;
             }
         }
-        return prior.size();
+        return -1;
     }
 
     private int filterSize(List<Attachment> prior, long maxTotalSize) {
@@ -212,10 +227,10 @@ public class PurgeAttachmentsJob extends AbstractJob {
         for (int i = 0; i < prior.size(); i++) {
             s += prior.get(i).getFileSize();
             if (s > maxTotalSize) {
-                return i - 1;
+                return i;
             }
         }
-        return prior.size();
+        return -1;
     }
 
     private void mailResults(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
@@ -224,10 +239,23 @@ public class PurgeAttachmentsJob extends AbstractJob {
             StringBuilder sb = new StringBuilder();
             for (MailLogEntry me : n.getValue()) {
                 Attachment a = me.getAttachment();
-                sb.append(a.getDisplayTitle()).append("\n");
-                sb.append("Current Version: ").append(a.getAttachmentVersion());
-                sb.append("\n");
+
+                sb
+                        .append(a.getDisplayTitle()).append("\n")
+                        .append("    URL: ").append(a.getContent().getAttachmentsUrlPath()).append("\n")
+                        .append("    Current Version: ").append(a.getAttachmentVersion()).append("\n");
+
+                sb.append("    Versions Deleted: ");
+                int c = 0;
+                for (Attachment dl : me.getDeleted()) {
+                    if (c++ > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(dl.getVersion());
+                }
+                sb.append("\n\n");
             }
+
             ConfluenceMailQueueItem mail = new ConfluenceMailQueueItem(
                     n.getKey(),
                     "Purged attachments",
@@ -255,6 +283,10 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
         private Attachment getAttachment() {
             return attachment;
+        }
+
+        private List<Attachment> getDeleted() {
+            return deleted;
         }
 
     }

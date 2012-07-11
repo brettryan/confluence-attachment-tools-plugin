@@ -41,19 +41,30 @@ public class PurgeAttachmentsSettingsService {
     }
 
     public PurgeAttachmentSettings getSettings(String spaceKey) {
-        PurgeAttachmentSettings settings;
-        if (StringUtils.isBlank(spaceKey)) {
-            settings = (PurgeAttachmentSettings) bandanaManager.getValue(
-                    new ConfluenceBandanaContext(), KEY, false);
-        } else {
-            settings = (PurgeAttachmentSettings) bandanaManager.getValue(
-                    new ConfluenceBandanaContext(spaceKey), KEY, false);
-        }
+        return StringUtils.isBlank(spaceKey)
+                ? getSettings()
+                : (PurgeAttachmentSettings) bandanaManager.getValue(
+                new ConfluenceBandanaContext(spaceKey), KEY, false);
+    }
 
-        if (settings == null) {
-            settings = new PurgeAttachmentSettings();
-        }
+    public PurgeAttachmentSettings getSettings() {
+        return (PurgeAttachmentSettings) bandanaManager.getValue(
+                new ConfluenceBandanaContext(), KEY, false);
+    }
+
+    public PurgeAttachmentSettings createDefault() {
+        PurgeAttachmentSettings settings = new PurgeAttachmentSettings();
+        // TODO: Init default values.
         return settings;
+    }
+
+    //TODO: Implement ability to remove all space contexts.
+    public void deleteSettings(String spaceKey) {
+        if (StringUtils.isBlank(spaceKey)) {
+            bandanaManager.removeValue(new ConfluenceBandanaContext(), KEY);
+        } else {
+            bandanaManager.removeValue(new ConfluenceBandanaContext(spaceKey), KEY);
+        }
     }
 
 }

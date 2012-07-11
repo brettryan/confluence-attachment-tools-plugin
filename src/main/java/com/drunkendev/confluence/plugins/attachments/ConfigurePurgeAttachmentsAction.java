@@ -66,6 +66,9 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
     @Override
     public String doDefault() throws Exception {
         PurgeAttachmentSettings s = settingSvc.getSettings(getSpaceKey());
+        if (s == null) {
+            s = settingSvc.createDefault();
+        }
         this.mode = s.getMode();
         this.ageRuleEnabled = s.isAgeRuleEnabled();
         this.maxDaysOld = s.getMaxDaysOld();
