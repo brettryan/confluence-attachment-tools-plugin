@@ -115,6 +115,9 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 findLatestVersionsIterator();
 
         PurgeAttachmentSettings systemSettings = settingSvc.getSettings();
+        if (systemSettings == null) {
+            systemSettings = settingSvc.createDefault();
+        }
         Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings(systemSettings);
 
         Map<String, List<MailLogEntry>> mailEntries = new HashMap<String, List<MailLogEntry>>();
@@ -136,7 +139,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 if (toDelete.size() > 0) {
                     for (Attachment p : toDelete) {
                         if (st.isReportOnly() || systemSettings.isReportOnly()) {
-
                         } else {
                             attachmentManager.removeAttachmentVersionFromServer(p);
                         }
@@ -160,7 +162,8 @@ public class PurgeAttachmentsJob extends AbstractJob {
             }
         }
         try {
-            mailResults(mailEntries);
+            //mailResultsPlain(mailEntries);
+            mailResultsHtml(mailEntries);
         } catch (MailException ex) {
             LOG.error("Exception raised while trying to mail results.", ex);
         }
@@ -243,7 +246,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
         return -1;
     }
 
-    private void mailResults(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
+    private void mailResultsPlain(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
         String p = settingsManager.getGlobalSettings().getBaseUrl();
 
         for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
@@ -280,7 +283,80 @@ public class PurgeAttachmentsJob extends AbstractJob {
             mailQueueTaskManager.getTaskQueue("mail").addTask(mail);
             LOG.debug("Mail Sent");
         }
+    }
 
+    private void mailResultsHtml(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
+        String p = settingsManager.getGlobalSettings().getBaseUrl();
+        String subject = "Purged old attachments";
+
+        for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<table>");
+
+            sb.append("<thead>");
+            sb.append("<tr>");
+            sb.append("<td>").append("Display Title").append("</td>");
+            sb.append("<td>").append("Current File Size").append("</td>");
+            sb.append("<td>").append("Space").append("</td>");
+            sb.append("<td>").append("Report Only?").append("</td>");
+            sb.append("<td>").append("Using Global Settings?").append("</td>");
+            sb.append("<td>").append("Current Version").append("</td>");
+            sb.append("<td>").append("Versions Deleted").append("</td>");
+            sb.append("</tr>");
+            sb.append("</thead>");
+
+            sb.append("<tbody>");
+            for (MailLogEntry me : n.getValue()) {
+                Attachment a = me.getAttachment();
+
+                sb.append("<tr>");
+
+                sb.append("<td>");
+                sb.append("<a href=\"").append(p).append(a.getContent().getAttachmentsUrlPath()).append("\">")
+                        .append(a.getDisplayTitle()).append("</a>");
+                sb.append("</td>");
+
+                sb.append("<td>").append(a.getNiceFileSize()).append("</td>");
+
+                sb.append("<td>");
+                sb.append("<a href=\"").append(p).append(a.getSpace().getUrlPath()).append("\">")
+                        .append(a.getSpace().getName()).append("</a>");
+                sb.append("</td>");
+
+                sb.append("<td>").append(me.isReportOnly() ? "Yes" : "No").append("</td>");
+                sb.append("<td>").append(me.isGlobalSettings() ? "Yes" : "No").append("</td>");
+                sb.append("<td>").append(a.getAttachmentVersion()).append("</td>");
+
+                sb.append("<td>");
+                int c = 0;
+                for (Integer dl : me.getDeletedVersions()) {
+                    if (c++ > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(dl);
+                }
+                sb.append("</td>");
+
+                sb.append("</tr>");
+            }
+            sb.append("</tbody></table>");
+
+            sb.insert(0, "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en-US\" lang=\"en-US\">")
+                    .append("<head>")
+                    .append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
+                    .append("<title>").append(subject).append("</title>")
+                    .append("</head>")
+                    .append("<body style='font-family: Helvetica, Arial, sans-serif; font-size: 10pt;'>");
+            sb.append("</body></html>");
+
+            ConfluenceMailQueueItem mail = new ConfluenceMailQueueItem(
+                    n.getKey(),
+                    subject,
+                    sb.toString(),
+                    "text/html; charset=utf-8");
+            mailQueueTaskManager.getTaskQueue("mail").addTask(mail);
+            LOG.debug("Mail Sent");
+        }
     }
 
 
