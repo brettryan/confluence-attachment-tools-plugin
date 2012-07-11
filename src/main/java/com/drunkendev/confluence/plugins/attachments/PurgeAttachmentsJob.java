@@ -136,8 +136,9 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 if (toDelete.size() > 0) {
                     for (Attachment p : toDelete) {
                         if (st.isReportOnly() || systemSettings.isReportOnly()) {
+
                         } else {
-                            attachmentManager.removeAttachmentFromServer(p);
+                            //attachmentManager.removeAttachmentFromServer(p);
                         }
                     }
                     MailLogEntry mle = new MailLogEntry(a, deletedVersions, st.isReportOnly() || systemSettings.isReportOnly(), st == systemSettings);
