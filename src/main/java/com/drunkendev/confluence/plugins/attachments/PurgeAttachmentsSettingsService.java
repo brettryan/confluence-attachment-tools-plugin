@@ -54,7 +54,7 @@ public class PurgeAttachmentsSettingsService {
 
     public PurgeAttachmentSettings createDefault() {
         PurgeAttachmentSettings settings = new PurgeAttachmentSettings();
-        // TODO: Init default values.
+        settings.setReportOnly(true);
         return settings;
     }
 
