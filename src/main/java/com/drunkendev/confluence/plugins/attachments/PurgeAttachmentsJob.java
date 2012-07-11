@@ -343,7 +343,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
             sb.insert(0, "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en-US\" lang=\"en-US\">")
                     .append("<head>")
-                    .append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
+                    //.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
                     .append("<title>").append(subject).append("</title>")
                     .append("</head>")
                     .append("<body style='font-family: Helvetica, Arial, sans-serif; font-size: 10pt;'>");
@@ -353,7 +353,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
                     n.getKey(),
                     subject,
                     sb.toString(),
-                    "text/html; charset=utf-8");
+                    ConfluenceMailQueueItem.MIME_TYPE_HTML);
             mailQueueTaskManager.getTaskQueue("mail").addTask(mail);
             LOG.debug("Mail Sent");
         }
