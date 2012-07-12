@@ -291,7 +291,25 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
         for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
             StringBuilder sb = new StringBuilder();
-            sb.append("<table>");
+
+            sb.append("<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en-US\" lang=\"en-US\">");
+
+
+            sb.append("<head>");
+            //sb.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
+            sb.append("<title>").append(subject).append("</title>");
+            sb.append("<style type=\"text/css\">");
+            sb.append("body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; width: 100% }");
+            sb.append("a { color: #326ca6; text-decoration: none; }");
+            sb.append("a:hover { color: #336ca6; text-decoration: underline; }");
+            sb.append("a:active { color: #326ca6; }");
+            sb.append("</style>");
+            sb.append("</head>");
+
+
+            sb.append("<body>");
+
+            sb.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">");
 
             sb.append("<thead>");
             sb.append("<tr>");
@@ -341,12 +359,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
             }
             sb.append("</tbody></table>");
 
-            sb.insert(0, "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en-US\" lang=\"en-US\">")
-                    .append("<head>")
-                    //.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
-                    .append("<title>").append(subject).append("</title>")
-                    .append("</head>")
-                    .append("<body style='font-family: Helvetica, Arial, sans-serif; font-size: 10pt;'>");
+
             sb.append("</body></html>");
 
             ConfluenceMailQueueItem mail = new ConfluenceMailQueueItem(
