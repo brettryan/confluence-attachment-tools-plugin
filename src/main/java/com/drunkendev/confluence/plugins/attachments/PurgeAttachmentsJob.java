@@ -299,27 +299,43 @@ public class PurgeAttachmentsJob extends AbstractJob {
             //sb.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
             sb.append("<title>").append(subject).append("</title>");
             sb.append("<style type=\"text/css\">");
-            sb.append("body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; width: 100% }");
+            sb.append("body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; width: 100%; color: #333; text-align: left; }");
             sb.append("a { color: #326ca6; text-decoration: none; }");
             sb.append("a:hover { color: #336ca6; text-decoration: underline; }");
             sb.append("a:active { color: #326ca6; }");
+            sb.append("table { border-collapse: collapse; padding: 0; border: 0 none; }");
+            sb.append("th, td { padding: 5px 7px; border: solid 1px #ddd; text-align: left; vertical-align: top; color: #333; margin: 0; }");
+            sb.append("th { background-color: #f0f0f0 }");
+            sb.append("tr.deleted td { background-color: #FFE7E7; /* border: solid 1px #DF9898; */ }");
             sb.append("</style>");
             sb.append("</head>");
 
 
             sb.append("<body>");
 
-            sb.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">");
+            sb.append("<p>");
+            sb.append("This message is to inform you that the following prior");
+            sb.append(" attachment versions have been removed from confluence");
+            sb.append(" in order to conserve space. Current versions have not");
+            sb.append(" been deleted.");
+            sb.append("</p>");
+
+            sb.append("<p>");
+            sb.append("Versions deleted are listed in the 'Versions Deleted'");
+            sb.append(" column. Rows shown in red have been processed, all");
+            sb.append(" other rows are in report-only mode.");
+            sb.append("</p>");
+
+            sb.append("<table>");
 
             sb.append("<thead>");
             sb.append("<tr>");
-            sb.append("<td>").append("Display Title").append("</td>");
-            sb.append("<td>").append("Current File Size").append("</td>");
-            sb.append("<td>").append("Space").append("</td>");
-            sb.append("<td>").append("Report Only?").append("</td>");
-            sb.append("<td>").append("Using Global Settings?").append("</td>");
-            sb.append("<td>").append("Current Version").append("</td>");
-            sb.append("<td>").append("Versions Deleted").append("</td>");
+            sb.append("<th>").append("Space").append("</th>");
+            sb.append("<th>").append("File Name").append("</th>");
+            sb.append("<th>").append("File Size").append("</th>");
+            //sb.append("<th>").append("Global Settings?").append("</th>");
+            sb.append("<th>").append("Version").append("</th>");
+            sb.append("<th>").append("Versions Deleted").append("</th>");
             sb.append("</tr>");
             sb.append("</thead>");
 
@@ -327,7 +343,16 @@ public class PurgeAttachmentsJob extends AbstractJob {
             for (MailLogEntry me : n.getValue()) {
                 Attachment a = me.getAttachment();
 
-                sb.append("<tr>");
+                sb.append("<tr");
+                if (!me.isReportOnly()) {
+                    sb.append(" class=\"deleted\"");
+                }
+                sb.append(">");
+
+                sb.append("<td>");
+                sb.append("<a href=\"").append(p).append(a.getSpace().getUrlPath()).append("\">")
+                        .append(a.getSpace().getName()).append("</a>");
+                sb.append("</td>");
 
                 sb.append("<td>");
                 sb.append("<a href=\"").append(p).append(a.getContent().getAttachmentsUrlPath()).append("\">")
@@ -336,13 +361,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
                 sb.append("<td>").append(a.getNiceFileSize()).append("</td>");
 
-                sb.append("<td>");
-                sb.append("<a href=\"").append(p).append(a.getSpace().getUrlPath()).append("\">")
-                        .append(a.getSpace().getName()).append("</a>");
-                sb.append("</td>");
-
-                sb.append("<td>").append(me.isReportOnly() ? "Yes" : "No").append("</td>");
-                sb.append("<td>").append(me.isGlobalSettings() ? "Yes" : "No").append("</td>");
+                //sb.append("<td>").append(me.isGlobalSettings() ? "Yes" : "No").append("</td>");
                 sb.append("<td>").append(a.getAttachmentVersion()).append("</td>");
 
                 sb.append("<td>");
@@ -359,6 +378,10 @@ public class PurgeAttachmentsJob extends AbstractJob {
             }
             sb.append("</tbody></table>");
 
+            sb.append("<p>");
+            sb.append("This message has been sent by the confluence mail tools");
+            sb.append(" - attachment purger.");
+            sb.append("</p>");
 
             sb.append("</body></html>");
 
