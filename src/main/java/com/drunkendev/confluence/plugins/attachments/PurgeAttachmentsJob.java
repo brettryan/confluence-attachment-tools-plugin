@@ -7,6 +7,7 @@
 
 package com.drunkendev.confluence.plugins.attachments;
 
+import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.mail.template.ConfluenceMailQueueItem;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
@@ -45,6 +46,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private PurgeAttachmentsSettingsService settingSvc;
     private MultiQueueTaskManager mailQueueTaskManager;
     private SettingsManager settingsManager;
+    private ConfluenceActionSupport confluenceActionSupport;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
@@ -71,6 +73,10 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     public void setSettingsManager(SettingsManager settingsManager) {
         this.settingsManager = settingsManager;
+    }
+
+    public void setConfluenceActionSupport(ConfluenceActionSupport confluenceActionSupport) {
+        this.confluenceActionSupport = confluenceActionSupport;
     }
 
     private PurgeAttachmentSettings getSettings(Space space, PurgeAttachmentSettings dflt) {
@@ -140,7 +146,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
                     for (Attachment p : toDelete) {
                         if (st.isReportOnly() || systemSettings.isReportOnly()) {
                         } else {
-                            attachmentManager.removeAttachmentVersionFromServer(p);
+                            //attachmentManager.removeAttachmentVersionFromServer(p);
                         }
                     }
                     MailLogEntry mle = new MailLogEntry(a, deletedVersions, st.isReportOnly() || systemSettings.isReportOnly(), st == systemSettings);
@@ -185,7 +191,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
         });
 
         int to = -1;
-        int n = 0;
+        int n;
         if (stng.isRevisionCountRuleEnabled()) {
             n = filterRevisionCount(prior, stng.getMaxRevisions());
             if (n > to) {
@@ -303,6 +309,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sb.append("a { color: #326ca6; text-decoration: none; }");
             sb.append("a:hover { color: #336ca6; text-decoration: underline; }");
             sb.append("a:active { color: #326ca6; }");
+            sb.append("div.note { border: solid 1px #F0C000; padding: 5px; background-color: #FFFFCE; }");
             sb.append("table { border-collapse: collapse; padding: 0; border: 0 none; }");
             sb.append("th, td { padding: 5px 7px; border: solid 1px #ddd; text-align: left; vertical-align: top; color: #333; margin: 0; }");
             sb.append("th { background-color: #f0f0f0 }");
@@ -312,6 +319,12 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
 
             sb.append("<body>");
+
+            sb.append("<div class=\"note\">");
+            sb.append("<strong>NOTE</strong>: Attachment purging is currently disabled ")
+                    .append("for this version of the plugin. This will be enabled ")
+                    .append("once confluence 4.3 becomes available.");
+            sb.append("</div>");
 
             sb.append("<p>");
             sb.append("This message is to inform you that the following prior");

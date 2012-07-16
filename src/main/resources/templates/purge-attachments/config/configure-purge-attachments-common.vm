@@ -1,6 +1,12 @@
 
 <h2>Processing Rules</h2>
 
+<div class="noteMacro">
+  <strong>NOTE</strong>: Attachment purging is currently disabled for this
+  version of the plugin. This will be enabled once confluence 4.3 becomes
+  available.
+</div>
+
 <fieldset class="group">
   <div class="checkbox">
     <legend><span>Maximum days old</span></legend>

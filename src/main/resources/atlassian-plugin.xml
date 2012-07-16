@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<atlassian-plugin key="${project.groupId}.${project.artifactId}"
+<atlassian-plugin key="${key}"
                   name="${project.name}"
                   plugins-version="2">
 
@@ -12,16 +12,16 @@
     <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
-  <component key="${project.groupId}.${project.artifactId}.purge-att-setting-svc"
+  <component key="${key}.purge-attachment-service"
              name="Purge Attachment Settings Service"
              alias="purgeAttSettingService"
              class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsSettingsService"/>
 
-  <web-item key="configure-purge-attachments-space"
+  <web-item key="configure-purge-attachments-space-item"
             name="Configure Purge Attachments (Space)"
             section="system.space.admin/spaceops"
             weight="40">
-    <label key="Attachment Purging" />
+    <label key="${key}.config.purge"/>
     <link>/spaces/configure-purge-attachments-space.action?key=$helper.space.key</link>
     <condition class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceCondition"/>
   </web-item>
