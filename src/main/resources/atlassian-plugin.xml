@@ -17,13 +17,20 @@
              alias="purgeAttSettingService"
              class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsSettingsService"/>
 
-  <web-item key="configure-purge-attachments-space-item"
+  <web-resource key="purge-attachment-images" name="Purge Attachment Images">
+     <resource type="download" name="images/" location="images"/>
+  </web-resource>
+
+  <web-item key="configure-purge-attachments-space"
             name="Configure Purge Attachments (Space)"
             section="system.space.admin/spaceops"
             weight="40">
     <label key="${key}.config.purge"/>
     <link>/spaces/configure-purge-attachments-space.action?key=$helper.space.key</link>
     <condition class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceCondition"/>
+    <icon height="16" width="16">
+      <link>/download/resources/${key}:purge-attachment-images/images/paperclip-icon.png</link>
+    </icon>
   </web-item>
 
   <resource type="i18n" name="i18n" location="i18n" />
