@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="920"
+   height="450"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   inkscape:export-filename="/Users/bryan/Development/attachment-tools-plugin/images/banner.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:docname="New document 1">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient5194">
+      <stop
+         style="stop-color:#fff47c;stop-opacity:1;"
+         offset="0"
+         id="stop5196" />
+      <stop
+         style="stop-color:#dfe28c;stop-opacity:0;"
+         offset="1"
+         id="stop5198" />
+    </linearGradient>
+    <linearGradient
+       gradientTransform="matrix(1.0019881,0,0,0.99604745,-0.28628233,980.36215)"
+       gradientUnits="userSpaceOnUse"
+       y2="0.1428566"
+       x2="59.571423"
+       y1="76.714287"
+       x1="10.714286"
+       id="linearGradient4953"
+       xlink:href="#linearGradient4947"
+       inkscape:collect="always" />
+    <filter
+       id="filter4941"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur4943"
+         stdDeviation="0.58932946"
+         inkscape:collect="always" />
+    </filter>
+    <filter
+       id="filter4903"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur4905"
+         stdDeviation="1.6231532"
+         inkscape:collect="always" />
+    </filter>
+    <linearGradient
+       id="linearGradient4947">
+      <stop
+         id="stop4949"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop4951"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4947"
+       id="linearGradient5170"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.0019881,0,0,0.99604745,-0.28628233,980.36215)"
+       x1="16.987528"
+       y1="72.268143"
+       x2="61.282307"
+       y2="3.7284575" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="431.31229"
+     inkscape:cy="258.43669"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer4"
+     showgrid="false"
+     inkscape:window-width="1916"
+     inkscape:window-height="1156"
+     inkscape:window-x="4"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="Layer#2"
+     style="display:inline">
+    <rect
+       style="opacity:0.25600011000000000;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="rect5190"
+       width="914"
+       height="444"
+       x="3"
+       y="3" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-602.36218)"
+     style="display:inline">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.26223218;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4903)"
+       d="m 46.865466,998.56039 -22.545465,40.58721 c -3.302064,5.3561 4.950861,9.6212 7.937027,4.2455 l 27.332041,-49.2042 c 5.138545,-9.25058 -8.046801,-16.40384 -13.112761,-7.28392 l -29.135679,52.45112 c -7.010834,12.6211 11.073611,23.3108 18.357862,10.1974 l 24.279738,-43.7092"
+       id="path4873"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       transform="matrix(4.7534835,0,0,4.7534835,573.27867,-4030.3782)" />
+    <g
+       id="layer2"
+       inkscape:label="Fade Top"
+       style="display:none"
+       transform="matrix(4.7534835,0,0,4.7534835,262.85879,619.15061)">
+      <rect
+         transform="translate(0,-980.36217)"
+         style="fill:url(#linearGradient5170);fill-opacity:1;stroke:none"
+         id="rect4945"
+         width="72"
+         height="72"
+         x="0"
+         y="980.36218" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Layer#1"
+     style="display:inline">
+    <path
+       sodipodi:nodetypes="cccccccc"
+       inkscape:connector-curvature="0"
+       id="path2987"
+       d="m 796.05289,113.89996 -107.1695,192.93063 c -15.6963,25.46013 23.53384,45.73422 37.72853,20.18091 L 856.53433,93.120152 c 24.42599,-43.97248 -38.25034,-77.97538 -62.3313,-34.62399 L 655.70706,307.82169 c -33.32588,59.99419 52.63823,110.80753 87.2638,48.47317 L 858.38419,148.5239"
+       style="fill:none;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Layer"
+     style="display:inline">
+    <path
+       style="fill:none;stroke:#ebffff;stroke-width:1.05186021;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4941)"
+       d="m 46.865466,998.56039 -22.545465,40.58721 c -3.302064,5.3561 4.950861,9.6212 7.937027,4.2455 l 27.332041,-49.2042 c 5.138545,-9.25058 -8.046801,-16.40384 -13.112761,-7.28392 l -29.135679,52.45112 c -7.010834,12.6211 11.073611,23.3108 18.357862,10.1974 l 24.279738,-43.7092"
+       id="path4907"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       transform="matrix(4.7534835,0,0,4.7534835,573.15735,-4632.4977)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Text">
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot5213"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Helvetica"
+       transform="translate(9.1923882,4.2426407)"><flowRegion
+         id="flowRegion5215"><rect
+           id="rect5217"
+           width="688.72198"
+           height="117.37972"
+           x="16.970562"
+           y="17.25065"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Sans;-inkscape-font-specification:Helvetica" /></flowRegion><flowPara
+         id="flowPara5219"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Sans;-inkscape-font-specification:Helvetica Bold">Attachment Tools Plugin</flowPara></flowRoot>    <flowRoot
+       xml:space="preserve"
+       id="flowRoot5221"
+       style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"><flowRegion
+         id="flowRegion5223"><rect
+           id="rect5225"
+           width="575.58502"
+           height="304.05588"
+           x="38.183765"
+           y="104.22478" /></flowRegion><flowPara
+         id="flowPara5227">Provides the ability to purge attachment revisions</flowPara><flowPara
+         id="flowPara5229" /><flowPara
+         id="flowPara5231">- By maximum revision count</flowPara><flowPara
+         id="flowPara5233">- By maximum attachment size</flowPara><flowPara
+         id="flowPara5235">- By revision age</flowPara><flowPara
+         id="flowPara5237" /><flowPara
+         id="flowPara5243">Settings can be provided globally or at the space level.</flowPara><flowPara
+         id="flowPara5249" /><flowPara
+         id="flowPara5251">Email reports can be sent to global or space email</flowPara><flowPara
+         id="flowPara5253">address. A reporting only option allows you to determin</flowPara><flowPara
+         id="flowPara5255">what attachment revisions will be processed.</flowPara></flowRoot>  </g>
+</svg>
