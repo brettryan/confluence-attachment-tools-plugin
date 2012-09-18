@@ -9,7 +9,7 @@
     <version>${project.version}</version>
     <vendor name="${project.organization.name}"
             url="${project.organization.url}" />
-    <param name="configure.url">/admin/plugins/${key}/configure.action</param>
+    <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
   <component key="${key}.purge-attachment-service"
