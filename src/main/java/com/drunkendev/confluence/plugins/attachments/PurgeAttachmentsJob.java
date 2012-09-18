@@ -7,7 +7,6 @@
 
 package com.drunkendev.confluence.plugins.attachments;
 
-import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.mail.template.ConfluenceMailQueueItem;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
@@ -15,6 +14,7 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.SpaceManager;
 import com.atlassian.core.task.MultiQueueTaskManager;
+import com.atlassian.core.util.FileSize;
 import com.atlassian.mail.MailException;
 import com.atlassian.quartz.jobs.AbstractJob;
 import java.util.ArrayList;
@@ -46,7 +46,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private PurgeAttachmentsSettingsService settingSvc;
     private MultiQueueTaskManager mailQueueTaskManager;
     private SettingsManager settingsManager;
-    private ConfluenceActionSupport confluenceActionSupport;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
@@ -73,10 +72,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     public void setSettingsManager(SettingsManager settingsManager) {
         this.settingsManager = settingsManager;
-    }
-
-    public void setConfluenceActionSupport(ConfluenceActionSupport confluenceActionSupport) {
-        this.confluenceActionSupport = confluenceActionSupport;
     }
 
     private PurgeAttachmentSettings getSettings(Space space, PurgeAttachmentSettings dflt) {
@@ -143,13 +138,20 @@ public class PurgeAttachmentsJob extends AbstractJob {
                     deletedVersions.add(tt.getVersion());
                 }
                 if (toDelete.size() > 0) {
+                    long spaceSaved = 0;
                     for (Attachment p : toDelete) {
                         if (st.isReportOnly() || systemSettings.isReportOnly()) {
                         } else {
-                            //attachmentManager.removeAttachmentVersionFromServer(p);
+                            attachmentManager.removeAttachmentVersionFromServer(p);
                         }
+                        spaceSaved += p.getFileSize();
                     }
-                    MailLogEntry mle = new MailLogEntry(a, deletedVersions, st.isReportOnly() || systemSettings.isReportOnly(), st == systemSettings);
+                    MailLogEntry mle = new MailLogEntry(
+                            a,
+                            deletedVersions,
+                            st.isReportOnly() || systemSettings.isReportOnly(),
+                            st == systemSettings,
+                            spaceSaved);
                     if (st != systemSettings && StringUtils.isNotBlank(st.getReportEmailAddress())) {
                         if (!mailEntries.containsKey(st.getReportEmailAddress())) {
                             mailEntries.put(st.getReportEmailAddress(), new ArrayList<MailLogEntry>());
@@ -320,12 +322,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
             sb.append("<body>");
 
-            sb.append("<div class=\"note\">");
-            sb.append("<strong>NOTE</strong>: Attachment purging is currently disabled ")
-                    .append("for this version of the plugin. This will be enabled ")
-                    .append("once confluence 4.3 becomes available.");
-            sb.append("</div>");
-
             sb.append("<p>");
             sb.append("This message is to inform you that the following prior");
             sb.append(" attachment versions have been removed from confluence");
@@ -339,13 +335,34 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sb.append(" other rows are in report-only mode.");
             sb.append("</p>");
 
+            long deleted = 0;
+            long report = 0;
+            for (MailLogEntry me : n.getValue()) {
+                if (me.isReportOnly()) {
+                    report += me.getSpaceSaved();
+                } else {
+                    deleted += me.getSpaceSaved();
+                }
+            }
+            if (deleted > 0) {
+                sb.append("<p>");
+                sb.append("A total of ").append(FileSize.format(deleted))
+                        .append(" space has been reclaimed.");
+                sb.append("</p>");
+            }
+            if (report > 0) {
+                sb.append("<p>");
+                sb.append("A total of ").append(FileSize.format(report))
+                        .append(" can be reclaimed from those in report mode.");
+                sb.append("</p>");
+            }
             sb.append("<table>");
 
             sb.append("<thead>");
             sb.append("<tr>");
             sb.append("<th>").append("Space").append("</th>");
             sb.append("<th>").append("File Name").append("</th>");
-            sb.append("<th>").append("File Size").append("</th>");
+            sb.append("<th>").append("Space Freed").append("</th>");
             //sb.append("<th>").append("Global Settings?").append("</th>");
             sb.append("<th>").append("Version").append("</th>");
             sb.append("<th>").append("Versions Deleted").append("</th>");
@@ -418,12 +435,14 @@ public class PurgeAttachmentsJob extends AbstractJob {
         private List<Integer> deletedVersions;
         private boolean reportOnly;
         private boolean globalSettings;
+        private long spaceSaved;
 
-        private MailLogEntry(Attachment a, List<Integer> deletedVersions, boolean reportOnly, boolean globalSettings) {
+        private MailLogEntry(Attachment a, List<Integer> deletedVersions, boolean reportOnly, boolean globalSettings, long spaceSaved) {
             this.attachment = a;
             this.deletedVersions = deletedVersions;
             this.reportOnly = reportOnly;
             this.globalSettings = globalSettings;
+            this.spaceSaved = spaceSaved;
         }
 
         private Attachment getAttachment() {
@@ -440,6 +459,14 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
         private boolean isGlobalSettings() {
             return globalSettings;
+        }
+
+        private long getSpaceSaved() {
+            return spaceSaved;
+        }
+
+        private String getSpaceSavedPretty() {
+            return FileSize.format(spaceSaved);
         }
 
     }
