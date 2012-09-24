@@ -37,7 +37,7 @@
           <input class="radio" type="radio"  name="mode" id="mode-2" value="2"
 #if ($mode == 0 || $mode == 2) checked="checked" #end
                  />
-          <label for="mode-2">Enabled using global options</label>
+          <label for="mode-2">Use global options</label>
           <div class="description">
             Use globally configured options which may be disabled.
           </div>
@@ -46,7 +46,7 @@
           <input class="radio" type="radio"  name="mode" id="mode-3" value="3"
 #if ($mode == 3) checked="checked" #end
                  />
-          <label for="mode-3">Enabled using space options</label>
+          <label for="mode-3">Use space options</label>
           <div class="description">
             Use custom settings specified here.
           </div>

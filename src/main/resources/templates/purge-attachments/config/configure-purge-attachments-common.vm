@@ -1,10 +1,9 @@
 
 <h2>Processing Rules</h2>
 
-<div class="noteMacro">
-  <strong>NOTE</strong>: Attachment purging is currently disabled for this
-  version of the plugin. This will be enabled once confluence 4.3 becomes
-  available.
+<div class="noteMacro" style="padding: 5px; margin-bottom: 10px">
+  <strong>NOTE</strong>: Attachments will be purged where any of the selected
+  rules below match (using an OR match).
 </div>
 
 <fieldset class="group">
@@ -15,7 +14,7 @@
       />
     <label for="ageRuleEnabled">Enable</label>
     <div class="description">
-      Enable to purge attachments which are greater than a set days old limit.
+      Purges attachments which are greater than the provided limit in days.
     </div>
   </div>
   <div class="field-group">
@@ -36,7 +35,7 @@
       />
     <label for="revisionCountRuleEnabled">Enable</label>
     <div class="description">
-      Enable to purge attachments who exceed a given version limit.
+      Purges attachments who exceed the total count of prior versions.
     </div>
   </div>
   <div class="field-group">
@@ -57,7 +56,7 @@
       />
     <label for="maxSizeRuleEnabled">Enable</label>
     <div class="description">
-      Enable to purge attachments which have a size greater than a given value.
+      Purges oldest where the total size of prior versions is higher than this limit.
     </div>
   </div>
   <div class="field-group">
@@ -72,6 +71,11 @@
 
 
 <h2>Email Report</h2>
+
+<div class="noteMacro" style="padding: 5px; margin-bottom: 10px">
+  <strong>NOTE</strong>: If report mode is specified globally it will override
+  space level options.
+</div>
 
 <fieldset class="group">
   <div class="checkbox">
