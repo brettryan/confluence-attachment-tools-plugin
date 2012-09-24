@@ -389,7 +389,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
                         .append(a.getDisplayTitle()).append("</a>");
                 sb.append("</td>");
 
-                sb.append("<td>").append(a.getNiceFileSize()).append("</td>");
+                sb.append("<td>").append(me.getSpaceSavedPretty()).append("</td>");
 
                 //sb.append("<td>").append(me.isGlobalSettings() ? "Yes" : "No").append("</td>");
                 sb.append("<td>").append(a.getAttachmentVersion()).append("</td>");
