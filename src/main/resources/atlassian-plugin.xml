@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<atlassian-plugin key="${key}"
+<atlassian-plugin key="${project.groupId}.${project.artifactId}"
                   name="${project.name}"
                   plugins-version="2">
 
@@ -12,7 +12,7 @@
     <param name="configure.url">/admin/plugins/attachment-tools/configure.action</param>
   </plugin-info>
 
-  <component key="${key}.purge-attachment-service"
+  <component key="${project.groupId}.${project.artifactId}.purge-attachment-service"
              name="Purge Attachment Settings Service"
              alias="purgeAttSettingService"
              class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsSettingsService"/>
@@ -25,11 +25,11 @@
             name="Configure Purge Attachments (Space)"
             section="system.space.admin/spaceops"
             weight="40">
-    <label key="${key}.config.purge"/>
+    <label key="${project.groupId}.${project.artifactId}.config.purge"/>
     <link>/spaces/configure-purge-attachments-space.action?key=$helper.space.key</link>
     <condition class="com.drunkendev.confluence.plugins.attachments.ConfigurePurgeAttachmentsSpaceCondition"/>
     <icon height="16" width="16">
-      <link>/download/resources/${key}:purge-attachment-images/images/paperclip-icon.png</link>
+      <link>/download/resources/${project.groupId}.${project.artifactId}:purge-attachment-images/images/paperclip-icon.png</link>
     </icon>
   </web-item>
 

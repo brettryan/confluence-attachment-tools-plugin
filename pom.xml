@@ -11,7 +11,7 @@
   <groupId>com.drunkendev.confluence.plugins</groupId>
   <artifactId>attachment-tools-plugin</artifactId>
   <name>Attachment Tools Plugin</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 
   <properties>
     <confluence.version>4.3</confluence.version>
@@ -19,7 +19,6 @@
     <amps.version>3.11</amps.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>dd</netbeans.hint.license>
-    <key>${project.groupId}.${project.artifactId}</key>
   </properties>
 
   <dependencies>
@@ -63,7 +62,8 @@
   </dependencies>
 
   <build>
-
+<!--
+    This is removing ${spaceKey} from the atlassian-plugin.xml file.
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -82,7 +82,7 @@
         </includes>
       </resource>
     </resources>
-
+-->
     <plugins>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
