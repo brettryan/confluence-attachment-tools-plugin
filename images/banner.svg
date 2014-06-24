@@ -14,11 +14,11 @@
    height="450"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.0 r9654"
-   inkscape:export-filename="/Users/bryan/Development/attachment-tools-plugin/images/banner.png"
+   inkscape:version="0.48.2 r9819"
+   inkscape:export-filename="/Users/bryan/Development/confluence-attachment-tools-plugin/images/banner.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="banner.svg">
   <defs
      id="defs4">
     <linearGradient
@@ -88,13 +88,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="431.31229"
+     inkscape:cx="418.58437"
      inkscape:cy="258.43669"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer6"
      showgrid="false"
      inkscape:window-width="1916"
-     inkscape:window-height="1156"
+     inkscape:window-height="1036"
      inkscape:window-x="4"
      inkscape:window-y="0"
      inkscape:window-maximized="0" />
@@ -116,7 +116,7 @@
      inkscape:label="Layer#2"
      style="display:inline">
     <rect
-       style="opacity:0.25600011000000000;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       style="opacity:1;fill:#f0f0f0;fill-opacity:1;stroke:#c0c0c0;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        id="rect5190"
        width="914"
        height="444"
