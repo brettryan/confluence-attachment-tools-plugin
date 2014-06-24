@@ -18,7 +18,7 @@
 
     #parse ( "/template/includes/actionerrors.vm" )
 
-    <form action="doconfigure-purge-attachments-space.action" method="post" class="aui">
+    <form action="doconfigure-purge-attachments-space.action" method="post" class="aui long-label">
       <input type="hidden" name="key" value="$space.key" />
 
       <h2>Attachment Purging</h2>
@@ -59,7 +59,7 @@
       <div class="buttons-container">
         <div class="buttons">
           <input class="button submit" type="submit" value="Save">
-          <a href="#">Cancel</a>
+          <!--<input class="button" type="submit" name="cancel" value="Cancel"/>-->
         </div>
       </div>
 

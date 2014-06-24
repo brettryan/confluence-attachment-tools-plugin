@@ -2,20 +2,20 @@
 <h2>Processing Rules</h2>
 
 <div class="noteMacro" style="padding: 5px; margin-bottom: 10px">
-  <strong>NOTE</strong>: Attachments will be purged where any of the selected
-  rules below match (using an OR match).
+  <strong>NOTE</strong>: Attachments will be purged where ANY of the selected
+  rules below match.
 </div>
 
 <fieldset class="group">
+  <legend><span>Maximum days old</span></legend>
   <div class="checkbox">
-    <legend><span>Maximum days old</span></legend>
     <input class="checkbox" type="checkbox" id="ageRuleEnabled" name="ageRuleEnabled" value="true"
       #if ($ageRuleEnabled) checked="checked" #end
       />
     <label for="ageRuleEnabled">Enable</label>
-    <div class="description">
-      Purges attachments which are greater than the provided limit in days.
-    </div>
+  </div>
+  <div class="description">
+    Purges attachments which are greater than the provided limit in days.
   </div>
   <div class="field-group">
     <label for="maxDaysOld">Maximum days old</label>
@@ -28,15 +28,15 @@
 </fieldset>
 
 <fieldset class="group">
+  <legend><span>Version Limit</span></legend>
   <div class="checkbox">
-    <legend><span>Version Limit</span></legend>
     <input class="checkbox" type="checkbox" id="revisionCountRuleEnabled" name="revisionCountRuleEnabled" value="true"
       #if ($revisionCountRuleEnabled) checked="checked" #end
       />
     <label for="revisionCountRuleEnabled">Enable</label>
-    <div class="description">
-      Purges attachments who exceed the total count of prior versions.
-    </div>
+  </div>
+  <div class="description">
+    Purges attachments who exceed the total count of prior versions.
   </div>
   <div class="field-group">
     <label for="maxRevisions">Maximum prior versions</label>
@@ -49,15 +49,15 @@
 </fieldset>
 
 <fieldset class="group">
+  <legend><span>Maximum Size</span></legend>
   <div class="checkbox">
-    <legend><span>Maximum Size</span></legend>
     <input class="checkbox" type="checkbox" id="maxSizeRuleEnabled" name="maxSizeRuleEnabled" value="true"
       #if ($maxSizeRuleEnabled) checked="checked" #end
       />
     <label for="maxSizeRuleEnabled">Enable</label>
-    <div class="description">
-      Purges oldest where the total size of prior versions is higher than this limit.
-    </div>
+  </div>
+  <div class="description">
+    Purges oldest where the total size of prior versions is higher than this limit.
   </div>
   <div class="field-group">
     <label for="maxTotalSize">Maximum attachment size</label>
@@ -78,15 +78,15 @@
 </div>
 
 <fieldset class="group">
+  <legend><span>Report Only</span></legend>
   <div class="checkbox">
-    <legend><span>Report Only</span></legend>
     <input class="checkbox" type="checkbox" id="reportOnly" name="reportOnly" value="true"
       #if ($reportOnly) checked="checked" #end
       />
     <label for="reportOnly">Enable Report Only Mode</label>
-    <div class="description">
-      If enabled no processing will be performed.
-    </div>
+  </div>
+  <div class="description">
+    If enabled no processing will be performed.
   </div>
   <div class="field-group">
     <label for="reportEmailAddress">Report Address</label>
@@ -97,4 +97,3 @@
     </div>
   </div>
 </fieldset>
-

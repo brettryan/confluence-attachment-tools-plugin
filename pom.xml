@@ -11,12 +11,13 @@
   <groupId>com.drunkendev.confluence.plugins</groupId>
   <artifactId>attachment-tools-plugin</artifactId>
   <name>Attachment Tools Plugin</name>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 
   <properties>
-    <confluence.version>4.3</confluence.version>
-    <confluence.data.version>4.3</confluence.data.version>
-    <amps.version>3.11</amps.version>
+    <confluence.version>5.5.3</confluence.version>
+    <confluence.data.version>5.5.3</confluence.data.version>
+    <amps.version>5.0.3</amps.version>
+    <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>dd</netbeans.hint.license>
   </properties>
@@ -27,62 +28,57 @@
       <artifactId>confluence</artifactId>
       <version>${confluence.version}</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>connector</artifactId>
-          <groupId>javax.resource</groupId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <!-- WIRED TEST RUNNER DEPENDENCIES -->
+    <dependency>
+      <groupId>com.atlassian.plugins</groupId>
+      <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
+      <version>${plugin.testrunner.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2-atlassian-1</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.confluence.plugin</groupId>
-      <artifactId>func-test</artifactId>
-      <version>2.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.jwebunit</groupId>
-      <artifactId>jwebunit-htmlunit-plugin</artifactId>
-      <version>2.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.nekohtml</groupId>
-      <artifactId>nekohtml</artifactId>
-      <version>1.9.12</version>
+      <version>4.10</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
-<!--
-    This is removing ${spaceKey} from the atlassian-plugin.xml file.
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <excludes>
-          <exclude>**/*.properties</exclude>
-          <exclude>**/*.xml</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
--->
+    <!--
+        This is removing ${spaceKey} from the atlassian-plugin.xml file.
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+            <excludes>
+              <exclude>**/*.properties</exclude>
+              <exclude>**/*.xml</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>**/*.properties</include>
+              <include>**/*.xml</include>
+            </includes>
+          </resource>
+        </resources>
+    -->
     <plugins>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>

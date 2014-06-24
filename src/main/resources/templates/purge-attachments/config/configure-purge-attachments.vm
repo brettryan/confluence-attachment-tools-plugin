@@ -7,13 +7,13 @@
   </head>
   <body>
     #parse ( "/template/includes/actionerrors.vm" )
-    <form action="doconfigure.action" method="POST" class="aui">
+    <form action="doconfigure.action" method="POST" class="aui long-label">
       #parse ("/templates/purge-attachments/config/configure-purge-attachments-common.vm")
 
       <div class="buttons-container">
         <div class="buttons">
-          <input class="button submit" type="submit" value="Save">
-          <a href="#">Cancel</a>
+          <input class="button submit" type="submit" value="Save"/>
+          <!--<input class="button" type="submit" name="cancel" value="Cancel"/>-->
         </div>
       </div>
 
