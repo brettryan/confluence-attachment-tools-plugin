@@ -17,15 +17,18 @@ import com.atlassian.core.task.MultiQueueTaskManager;
 import com.atlassian.core.util.FileSize;
 import com.atlassian.mail.MailException;
 import com.atlassian.quartz.jobs.AbstractJob;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -39,8 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PurgeAttachmentsJob extends AbstractJob {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(PurgeAttachmentsJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PurgeAttachmentsJob.class);
     private AttachmentManager attachmentManager;
     private SpaceManager spaceManager;
     private PurgeAttachmentsSettingsService settingSvc;
@@ -86,7 +88,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
         }
 
         // Explicitely disabled.
-        if (sng != null && sng.getMode() == PurgeAttachmentSettings.MODE_DISABLED) {
+        if (sng.getMode() == PurgeAttachmentSettings.MODE_DISABLED) {
             sng = null;
         }
 
@@ -110,10 +112,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
     @Override
     public void doExecute(JobExecutionContext jec) throws JobExecutionException {
         LOG.info("Purge old attachments started.");
-
-        Iterator<Attachment> i =
-                attachmentManager.getAttachmentDao().
-                findLatestVersionsIterator();
+        Date started = new Date();
 
         PurgeAttachmentSettings systemSettings = settingSvc.getSettings();
         if (systemSettings == null) {
@@ -124,15 +123,15 @@ public class PurgeAttachmentsJob extends AbstractJob {
         Map<String, List<MailLogEntry>> mailEntries = new HashMap<String, List<MailLogEntry>>();
         //List<MailLogEntry> mailEntries = new ArrayList<MailLogEntry>();
 
+        Iterator<Attachment> i = attachmentManager.getAttachmentDao().findLatestVersionsIterator();
+
         while (i.hasNext()) {
-            Attachment a = i.next();
-            if (a.getVersion() > 1
-                    && a.getSpace() != null
-                    && sl.containsKey(a.getSpace().getKey())) {
+            Attachment att = i.next();
 
-                PurgeAttachmentSettings st = sl.get(a.getSpace().getKey());
+            if (att.getVersion() > 1 && att.getSpace() != null && sl.containsKey(att.getSpace().getKey())) {
+                PurgeAttachmentSettings settings = sl.get(att.getSpace().getKey());
 
-                List<Attachment> toDelete = findDeletions(a, st);
+                List<Attachment> toDelete = findDeletions(att, settings);
                 List<Integer> deletedVersions = new ArrayList<Integer>();
                 for (Attachment tt : toDelete) {
                     deletedVersions.add(tt.getVersion());
@@ -140,23 +139,23 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 if (toDelete.size() > 0) {
                     long spaceSaved = 0;
                     for (Attachment p : toDelete) {
-                        if (st.isReportOnly() || systemSettings.isReportOnly()) {
+                        if (settings.isReportOnly() || systemSettings.isReportOnly()) {
                         } else {
                             attachmentManager.removeAttachmentVersionFromServer(p);
                         }
                         spaceSaved += p.getFileSize();
                     }
                     MailLogEntry mle = new MailLogEntry(
-                            a,
+                            att,
                             deletedVersions,
-                            st.isReportOnly() || systemSettings.isReportOnly(),
-                            st == systemSettings,
+                            settings.isReportOnly() || systemSettings.isReportOnly(),
+                            settings == systemSettings,
                             spaceSaved);
-                    if (st != systemSettings && StringUtils.isNotBlank(st.getReportEmailAddress())) {
-                        if (!mailEntries.containsKey(st.getReportEmailAddress())) {
-                            mailEntries.put(st.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                    if (settings != systemSettings && StringUtils.isNotBlank(settings.getReportEmailAddress())) {
+                        if (!mailEntries.containsKey(settings.getReportEmailAddress())) {
+                            mailEntries.put(settings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
                         }
-                        mailEntries.get(st.getReportEmailAddress()).add(mle);
+                        mailEntries.get(settings.getReportEmailAddress()).add(mle);
                     }
                     //TODO: I know this will log twice if system email and space
                     //      email are the same, will fix later, just hacking atm.
@@ -169,13 +168,13 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 }
             }
         }
+        Date end = new Date();
         try {
             //mailResultsPlain(mailEntries);
-            mailResultsHtml(mailEntries);
+            mailResultsHtml(mailEntries, started, end);
         } catch (MailException ex) {
             LOG.error("Exception raised while trying to mail results.", ex);
         }
-
         LOG.info("Purge old attachments completed.");
     }
 
@@ -189,7 +188,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
             public int compare(Attachment t, Attachment t1) {
                 return t.getVersion() - t1.getVersion();
             }
-
         });
 
         int to = -1;
@@ -202,26 +200,28 @@ public class PurgeAttachmentsJob extends AbstractJob {
         }
         if (stng.isAgeRuleEnabled()) {
             n = filterAge(prior, stng.getMaxDaysOld());
-            if (n < to) {
+            if (n > to) {
                 to = n;
             }
         }
         if (stng.isMaxSizeRuleEnabled()) {
             n = filterSize(prior, stng.getMaxTotalSize());
-            if (n < to) {
+            if (n > to) {
                 to = n;
             }
         }
-        if (to >= 0 && to < prior.size()) {
-            return prior.subList(0, to);
-        } else {
+        if (to == -1) {
             return Collections.<Attachment>emptyList();
         }
+        if (to >= prior.size() - 1) {
+            return prior;
+        }
+        return prior.subList(0, to + 1);
     }
 
     private int filterRevisionCount(List<Attachment> prior, int maxRevisions) {
         if (prior.size() > maxRevisions) {
-            return (prior.size() - maxRevisions) + 1;
+            return (prior.size() - maxRevisions) - 1;
         } else {
             return -1;
         }
@@ -232,26 +232,33 @@ public class PurgeAttachmentsJob extends AbstractJob {
         dateFrom.add(Calendar.DAY_OF_MONTH, -(maxDaysOld));
         Calendar modDate = Calendar.getInstance();
 
-        for (int i = 0; i < prior.size(); i++) {
-            modDate.setTime(prior.get(i).getLastModificationDate());
-            if (dateFrom.after(modDate)) {
-                return i;
+        for (int i = prior.size() - 1; i >= 0; i--) {
+            if (prior.get(i).getLastModificationDate() != null) {
+                modDate.setTime(prior.get(i).getLastModificationDate());
+                if (dateFrom.after(modDate)) {
+                    return i;
+                }
             }
         }
+
         return -1;
     }
 
     private int filterSize(List<Attachment> prior, long maxTotalSize) {
-        long s = 0;
-        long m = maxTotalSize * 1024;
+        long fileSize = 0;
+        long maxSizeKiB = maxTotalSize * 1024 * 1024;
+
+        int m = -1;
 
         for (int i = 0; i < prior.size(); i++) {
-            s += prior.get(i).getFileSize();
-            if (s > m) {
-                return i;
+            fileSize += prior.get(i).getFileSize();
+            if (fileSize > maxSizeKiB) {
+                m = i;
+            } else if (m > -1) {
+                break;
             }
         }
-        return -1;
+        return m;
     }
 
     private void mailResultsPlain(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
@@ -293,15 +300,32 @@ public class PurgeAttachmentsJob extends AbstractJob {
         }
     }
 
-    private void mailResultsHtml(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
+    private void mailResultsHtml(Map<String, List<MailLogEntry>> mailEntries1, Date started, Date ended) throws MailException {
         String p = settingsManager.getGlobalSettings().getBaseUrl();
         String subject = "Purged old attachments";
 
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+
         for (Map.Entry<String, List<MailLogEntry>> n : mailEntries1.entrySet()) {
+            List<MailLogEntry> entries = n.getValue();
+
+            Collections.sort(entries, new Comparator<MailLogEntry>() {
+                @Override
+                public int compare(MailLogEntry o1, MailLogEntry o2) {
+                    Attachment a1 = o1.getAttachment();
+                    Attachment a2 = o2.getAttachment();
+
+                    int comp = ObjectUtils.compare(a1.getSpace().getName(), a2.getSpace().getName());
+                    if (comp != 0) return comp;
+                    comp = ObjectUtils.compare(a1.getDisplayTitle(), a2.getDisplayTitle());
+                    if (comp != 0) return comp;
+                    return 0;
+                }
+            });
+
             StringBuilder sb = new StringBuilder();
 
             sb.append("<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en-US\" lang=\"en-US\">");
-
 
             sb.append("<head>");
             //sb.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />")
@@ -319,7 +343,6 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sb.append("</style>");
             sb.append("</head>");
 
-
             sb.append("<body>");
 
             sb.append("<p>");
@@ -335,9 +358,15 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sb.append(" other rows are in report-only mode.");
             sb.append("</p>");
 
+            sb.append("<p><strong>Started</strong>: ")
+                    .append(df.format(started))
+                    .append("<strong>Ended</strong: ")
+                    .append(df.format(ended))
+                    .append("</p>");
+
             long deleted = 0;
             long report = 0;
-            for (MailLogEntry me : n.getValue()) {
+            for (MailLogEntry me : entries) {
                 if (me.isReportOnly()) {
                     report += me.getSpaceSaved();
                 } else {
@@ -370,7 +399,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
             sb.append("</thead>");
 
             sb.append("<tbody>");
-            for (MailLogEntry me : n.getValue()) {
+            for (MailLogEntry me : entries) {
                 Attachment a = me.getAttachment();
 
                 sb.append("<tr");
@@ -431,11 +460,11 @@ public class PurgeAttachmentsJob extends AbstractJob {
      */
     private class MailLogEntry {
 
-        private Attachment attachment;
-        private List<Integer> deletedVersions;
-        private boolean reportOnly;
-        private boolean globalSettings;
-        private long spaceSaved;
+        private final Attachment attachment;
+        private final List<Integer> deletedVersions;
+        private final boolean reportOnly;
+        private final boolean globalSettings;
+        private final long spaceSaved;
 
         private MailLogEntry(Attachment a, List<Integer> deletedVersions, boolean reportOnly, boolean globalSettings, long spaceSaved) {
             this.attachment = a;

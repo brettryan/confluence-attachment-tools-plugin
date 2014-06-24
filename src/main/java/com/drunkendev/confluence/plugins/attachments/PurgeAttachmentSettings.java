@@ -20,9 +20,9 @@ public class PurgeAttachmentSettings implements Serializable {
     public static final int MODE_DISABLED = 1;
     public static final int MODE_GLOBAL = 2;
     public static final int MODE_SPACE = 3;
-    //
+
     private static final long serialVersionUID = 1L;
-    //
+
     private int mode;
     private boolean ageRuleEnabled;
     private int maxDaysOld;
