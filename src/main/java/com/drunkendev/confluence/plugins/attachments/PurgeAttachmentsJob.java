@@ -245,20 +245,15 @@ public class PurgeAttachmentsJob extends AbstractJob {
     }
 
     private int filterSize(List<Attachment> prior, long maxTotalSize) {
-        long fileSize = 0;
         long maxSizeKiB = maxTotalSize * 1024 * 1024;
-
-        int m = -1;
-
-        for (int i = 0; i < prior.size(); i++) {
-            fileSize += prior.get(i).getFileSize();
-            if (fileSize > maxSizeKiB) {
-                m = i;
-            } else if (m > -1) {
-                break;
+        long total = 0;
+        for (int i = prior.size() - 1; i >= 0; i--) {
+            total += prior.get(i).getFileSize();
+            if (total > maxSizeKiB) {
+                return i;
             }
         }
-        return m;
+        return -1;
     }
 
     private void mailResultsPlain(Map<String, List<MailLogEntry>> mailEntries1) throws MailException {
@@ -360,7 +355,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
             sb.append("<p><strong>Started</strong>: ")
                     .append(df.format(started))
-                    .append("<strong>Ended</strong: ")
+                    .append(" <strong>Ended</strong>: ")
                     .append(df.format(ended))
                     .append("</p>");
 
