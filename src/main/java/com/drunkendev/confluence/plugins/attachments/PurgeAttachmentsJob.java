@@ -21,15 +21,16 @@ import com.atlassian.quartz.jobs.AbstractJob;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import java.text.DateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.quartz.JobExecutionContext;
@@ -119,76 +120,81 @@ public class PurgeAttachmentsJob extends AbstractJob {
 
     @Override
     public void doExecute(JobExecutionContext jec) throws JobExecutionException {
-        transactionTemplate.execute(new TransactionCallback<Object>() {
-            @Override
-            public Object doInTransaction() {
-                LOG.debug("Purge old attachments started.");
-                Date started = new Date();
+        LOG.debug("Purge old attachments started.");
+        Date started = new Date();
 
-                PurgeAttachmentSettings _systemSettings = settingSvc.getSettings();
-                if (_systemSettings == null) {
-                    _systemSettings = settingSvc.createDefault();
-                }
-                final PurgeAttachmentSettings systemSettings = _systemSettings;
-                final Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings(_systemSettings);
+        PurgeAttachmentSettings _systemSettings = settingSvc.getSettings();
+        if (_systemSettings == null) {
+            _systemSettings = settingSvc.createDefault();
+        }
+        final PurgeAttachmentSettings systemSettings = _systemSettings;
+        final Map<String, PurgeAttachmentSettings> sl = getAllSpaceSettings(_systemSettings);
 
-                final Map<String, List<MailLogEntry>> mailEntries = new HashMap<>();
+        final Map<String, List<MailLogEntry>> mailEntries = new HashMap<>();
 
-                Iterator<Attachment> i = attachmentManager.getAttachmentDao().findLatestVersionsIterator();
+        final Queue<Attachment> ll = new ArrayDeque<>(attachmentManager.getAttachmentDao().findAll());
 
-                while (i.hasNext()) {
-                    Attachment att = i.next();
+        while (!ll.isEmpty()) {
+            transactionTemplate.execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() {
+                    int batch = 0;
+                    while (!ll.isEmpty() && batch++ < 50) {
+                        Attachment att = ll.poll();
+                        att = attachmentManager.getAttachment(att.getId());
 
-                    if (att.getVersion() > 1 && att.getSpace() != null && sl.containsKey(att.getSpace().getKey())) {
-                        PurgeAttachmentSettings settings = sl.get(att.getSpace().getKey());
+                        if (att.getVersion() > 1 && att.getSpace() != null && sl.containsKey(att.getSpace().getKey())) {
+                            PurgeAttachmentSettings settings = sl.get(att.getSpace().getKey());
 
-                        List<Attachment> toDelete = findDeletions(att, settings);
-                        List<Integer> deletedVersions = new ArrayList<>();
-                        for (Attachment tt : toDelete) {
-                            deletedVersions.add(tt.getVersion());
-                        }
-                        if (!toDelete.isEmpty()) {
-                            long spaceSaved = 0;
-                            for (Attachment p : toDelete) {
-                                if (!settings.isReportOnly() && !systemSettings.isReportOnly()) {
-                                    attachmentManager.removeAttachmentVersionFromServer(p);
-                                }
-                                spaceSaved += p.getFileSize();
+                            List<Attachment> toDelete = findDeletions(att, settings);
+                            List<Integer> deletedVersions = new ArrayList<>();
+                            for (Attachment tt : toDelete) {
+                                deletedVersions.add(tt.getVersion());
                             }
-                            MailLogEntry mle = new MailLogEntry(
-                                    att,
-                                    deletedVersions,
-                                    settings.isReportOnly() || systemSettings.isReportOnly(),
-                                    settings == systemSettings,
-                                    spaceSaved);
-                            if (settings != systemSettings && StringUtils.isNotBlank(settings.getReportEmailAddress())) {
-                                if (!mailEntries.containsKey(settings.getReportEmailAddress())) {
-                                    mailEntries.put(settings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                            if (!toDelete.isEmpty()) {
+                                long spaceSaved = 0;
+                                for (Attachment p : toDelete) {
+                                    if (!settings.isReportOnly() && !systemSettings.isReportOnly()) {
+                                        attachmentManager.removeAttachmentVersionFromServer(p);
+                                    }
+                                    spaceSaved += p.getFileSize();
                                 }
-                                mailEntries.get(settings.getReportEmailAddress()).add(mle);
-                            }
-                            //TODO: I know this will log twice if system email and space
-                            //      email are the same, will fix later, just hacking atm.
-                            if (StringUtils.isNotBlank(systemSettings.getReportEmailAddress())) {
-                                if (!mailEntries.containsKey(systemSettings.getReportEmailAddress())) {
-                                    mailEntries.put(systemSettings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                                MailLogEntry mle = new MailLogEntry(
+                                        att,
+                                        deletedVersions,
+                                        settings.isReportOnly() || systemSettings.isReportOnly(),
+                                        settings == systemSettings,
+                                        spaceSaved);
+                                if (settings != systemSettings && StringUtils.isNotBlank(settings.getReportEmailAddress())) {
+                                    if (!mailEntries.containsKey(settings.getReportEmailAddress())) {
+                                        mailEntries.put(settings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                                    }
+                                    mailEntries.get(settings.getReportEmailAddress()).add(mle);
                                 }
-                                mailEntries.get(systemSettings.getReportEmailAddress()).add(mle);
+                                //TODO: I know this will log twice if system email and space
+                                //      email are the same, will fix later, just hacking atm.
+                                if (StringUtils.isNotBlank(systemSettings.getReportEmailAddress())) {
+                                    if (!mailEntries.containsKey(systemSettings.getReportEmailAddress())) {
+                                        mailEntries.put(systemSettings.getReportEmailAddress(), new ArrayList<MailLogEntry>());
+                                    }
+                                    mailEntries.get(systemSettings.getReportEmailAddress()).add(mle);
+                                }
                             }
                         }
                     }
+                    return null;
                 }
-                Date end = new Date();
-                try {
-                    //mailResultsPlain(mailEntries);
-                    mailResultsHtml(mailEntries, started, end);
-                } catch (MailException ex) {
-                    LOG.error("Exception raised while trying to mail results.", ex);
-                }
-                LOG.debug("Purge attachments complete.");
-                return null;
-            }
-        });
+            });
+        }
+
+        Date end = new Date();
+        try {
+            //mailResultsPlain(mailEntries);
+            mailResultsHtml(mailEntries, started, end);
+        } catch (MailException ex) {
+            LOG.error("Exception raised while trying to mail results.", ex);
+        }
+        LOG.debug("Purge attachments complete.");
     }
 
     private List<Attachment> findDeletions(Attachment a, PurgeAttachmentSettings stng) {
@@ -426,14 +432,14 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 sb.append("</td>");
 
                 sb.append("<td>");
-                sb.append("<a href=\"").append(p).append(a.getContent().getAttachmentsUrlPath()).append("\">")
+                sb.append("<a href=\"").append(p).append(a.getAttachmentsUrlPath()).append("\">")
                         .append(a.getDisplayTitle()).append("</a>");
                 sb.append("</td>");
 
                 sb.append("<td>").append(me.getSpaceSavedPretty()).append("</td>");
 
                 //sb.append("<td>").append(me.isGlobalSettings() ? "Yes" : "No").append("</td>");
-                sb.append("<td>").append(a.getAttachmentVersion()).append("</td>");
+                sb.append("<td>").append(a.getVersion()).append("</td>");
 
                 sb.append("<td>");
                 int c = 0;
