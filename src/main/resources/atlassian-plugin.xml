@@ -36,12 +36,12 @@
   <resource type="i18n" name="i18n" location="i18n" />
 
   <job key="purge-old-attachments-job"
-       name="Purge Old Attachment Versions"
+       name="Purge Attachment Versions"
        class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"
        perClusterJob="false" />
 
   <trigger key="purge-old-attachments-trigger"
-           name="Purge Old Attachments Trigger">
+           name="Purge Attachment Versions - Trigger">
     <job key="purge-old-attachments-job" />
     <!-- Run once a day -->
     <schedule cron-expression="0 0 0 * * ?"/>
@@ -92,5 +92,9 @@
     </package>
 
   </xwork>
+
+  <component-import key="transactionTemplate"
+                    name="Hibernate Transaction Template"
+                    interface="com.atlassian.sal.api.transaction.TransactionTemplate" />
 
 </atlassian-plugin>

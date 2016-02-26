@@ -52,13 +52,13 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
 
     @Override
     public boolean isPermitted() {
-        if (getRemoteUser() == null) {
+        if (getAuthenticatedUser() == null) {
             return false;
         }
         if (getSpace() == null) {
-            return permissionManager.isConfluenceAdministrator(getRemoteUser());
+            return permissionManager.isConfluenceAdministrator(getAuthenticatedUser());
         }
-        return permissionManager.hasPermission(getRemoteUser(),
+        return permissionManager.hasPermission(getAuthenticatedUser(),
                                                Permission.ADMINISTER,
                                                getSpace());
     }

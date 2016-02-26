@@ -34,9 +34,9 @@ public class ConfigurePurgeAttachmentsSpaceCondition extends BaseConfluenceCondi
 
     @Override
     protected boolean shouldDisplay(WebInterfaceContext wic) {
-        return wic.getUser() != null
+        return wic.getCurrentUser() != null
                 && wic.getSpace() != null
-                && permissionManager.hasPermission(wic.getUser(),
+                && permissionManager.hasPermission(wic.getCurrentUser(),
                                                    Permission.ADMINISTER,
                                                    wic.getSpace());
     }
