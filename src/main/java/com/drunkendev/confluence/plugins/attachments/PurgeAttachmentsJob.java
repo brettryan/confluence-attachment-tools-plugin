@@ -47,41 +47,28 @@ import org.slf4j.LoggerFactory;
 public class PurgeAttachmentsJob extends AbstractJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeAttachmentsJob.class);
-    private AttachmentManager attachmentManager;
-    private SpaceManager spaceManager;
-    private PurgeAttachmentsSettingsService settingSvc;
-    private MultiQueueTaskManager mailQueueTaskManager;
-    private SettingsManager settingsManager;
-    private TransactionTemplate transactionTemplate;
+    private final AttachmentManager attachmentManager;
+    private final SpaceManager spaceManager;
+    private final PurgeAttachmentsSettingsService settingSvc;
+    private final MultiQueueTaskManager mailQueueTaskManager;
+    private final SettingsManager settingsManager;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * Creates a new {@code PurgeAttachmentsJob} instance.
      */
-    public PurgeAttachmentsJob() {
+    public PurgeAttachmentsJob(AttachmentManager attachmentManager,
+                               SpaceManager spaceManager,
+                               PurgeAttachmentsSettingsService purgeAttachmentsSettingsService,
+                               MultiQueueTaskManager mailQueueTaskManager,
+                               SettingsManager settingsManager,
+                               TransactionTemplate transactionTemplate) {
         LOG.debug("Creating purge-old-attachment-job instance.");
-    }
-
-    public void setAttachmentManager(AttachmentManager attachmentManager) {
         this.attachmentManager = attachmentManager;
-    }
-
-    public void setSpaceManager(SpaceManager spaceManager) {
         this.spaceManager = spaceManager;
-    }
-
-    public void setPurgeAttachmentsSettingsService(PurgeAttachmentsSettingsService purgeAttachmentsSettingsService) {
         this.settingSvc = purgeAttachmentsSettingsService;
-    }
-
-    public void setMultiQueueTaskManager(MultiQueueTaskManager mailQueueTaskManager) {
         this.mailQueueTaskManager = mailQueueTaskManager;
-    }
-
-    public void setSettingsManager(SettingsManager settingsManager) {
         this.settingsManager = settingsManager;
-    }
-
-    public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }
 
