@@ -9,7 +9,8 @@ package com.drunkendev.confluence.plugins.attachments;
 
 import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import org.apache.commons.lang.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 /**
@@ -18,8 +19,9 @@ import org.apache.commons.lang.StringUtils;
  */
 public class PurgeAttachmentsSettingsService {
 
-    private BandanaManager bandanaManager;
     private static final String KEY = "com.drunkendev.confluence.plugins.attachments.purge-settings";
+
+    private final BandanaManager bandanaManager;
 
     /**
      * Creates a new {@code PurgeAttachmentsSettingsService} instance.
@@ -29,22 +31,18 @@ public class PurgeAttachmentsSettingsService {
     }
 
     public void setSettings(String spaceKey, PurgeAttachmentSettings settings) {
-        if (StringUtils.isBlank(spaceKey)) {
-            // Global settings.
-            bandanaManager.setValue(
-                    new ConfluenceBandanaContext(), KEY, settings);
-        } else {
-            // Space settings.
-            bandanaManager.setValue(
-                    new ConfluenceBandanaContext(spaceKey), KEY, settings);
-        }
+        bandanaManager.setValue(isBlank(spaceKey)
+                                ? new ConfluenceBandanaContext()
+                                : new ConfluenceBandanaContext(spaceKey),
+                                KEY,
+                                settings);
     }
 
     public PurgeAttachmentSettings getSettings(String spaceKey) {
-        return StringUtils.isBlank(spaceKey)
-                ? getSettings()
-                : (PurgeAttachmentSettings) bandanaManager.getValue(
-                new ConfluenceBandanaContext(spaceKey), KEY, false);
+        return isBlank(spaceKey)
+               ? getSettings()
+               : (PurgeAttachmentSettings) bandanaManager.getValue(
+                        new ConfluenceBandanaContext(spaceKey), KEY, false);
     }
 
     public PurgeAttachmentSettings getSettings() {
@@ -53,18 +51,19 @@ public class PurgeAttachmentsSettingsService {
     }
 
     public PurgeAttachmentSettings createDefault() {
-        PurgeAttachmentSettings settings = new PurgeAttachmentSettings();
-        settings.setReportOnly(true);
-        return settings;
+        return new PurgeAttachmentSettings(PurgeAttachmentSettings.MODE_DISABLED,
+                                           false, 0,
+                                           false, 0,
+                                           false, 0,
+                                           true, null);
     }
 
     //TODO: Implement ability to remove all space contexts.
     public void deleteSettings(String spaceKey) {
-        if (StringUtils.isBlank(spaceKey)) {
-            bandanaManager.removeValue(new ConfluenceBandanaContext(), KEY);
-        } else {
-            bandanaManager.removeValue(new ConfluenceBandanaContext(spaceKey), KEY);
-        }
+        bandanaManager.removeValue(isBlank(spaceKey)
+                                   ? new ConfluenceBandanaContext()
+                                   : new ConfluenceBandanaContext(spaceKey),
+                                   KEY);
     }
 
 }
