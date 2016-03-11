@@ -39,6 +39,26 @@ public class PurgeAttachmentSettings implements Serializable {
     public PurgeAttachmentSettings() {
     }
 
+    public PurgeAttachmentSettings(int mode,
+                                   boolean ageRuleEnabled,
+                                   int maxDaysOld,
+                                   boolean revisionCountRuleEnabled,
+                                   int maxRevisions,
+                                   boolean maxSizeRuleEnabled,
+                                   long maxTotalSize,
+                                   boolean reportOnly,
+                                   String reportEmailAddress) {
+        this.mode = mode;
+        this.ageRuleEnabled = ageRuleEnabled;
+        this.maxDaysOld = maxDaysOld;
+        this.revisionCountRuleEnabled = revisionCountRuleEnabled;
+        this.maxRevisions = maxRevisions;
+        this.maxSizeRuleEnabled = maxSizeRuleEnabled;
+        this.maxTotalSize = maxTotalSize;
+        this.reportOnly = reportOnly;
+        this.reportEmailAddress = reportEmailAddress;
+    }
+
     /**
      * @return the mode
      */
@@ -51,7 +71,7 @@ public class PurgeAttachmentSettings implements Serializable {
      */
     public void setMode(int mode) {
         this.mode = mode;
-    }
+}
 
     /**
      * @return the ageRuleEnabled
@@ -163,6 +183,11 @@ public class PurgeAttachmentSettings implements Serializable {
      */
     public void setReportEmailAddress(String reportEmailAddress) {
         this.reportEmailAddress = reportEmailAddress;
+    }
+
+    @Override
+    public String toString() {
+        return "PurgeAttachmentSettings{" + "mode=" + mode + ", ageRuleEnabled=" + ageRuleEnabled + ", maxDaysOld=" + maxDaysOld + ", revisionCountRuleEnabled=" + revisionCountRuleEnabled + ", maxRevisions=" + maxRevisions + ", maxSizeRuleEnabled=" + maxSizeRuleEnabled + ", maxTotalSize=" + maxTotalSize + ", reportOnly=" + reportOnly + ", reportEmailAddress=" + reportEmailAddress + '}';
     }
 
 }
