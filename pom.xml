@@ -11,11 +11,11 @@
   <groupId>com.drunkendev.confluence.plugins</groupId>
   <artifactId>attachment-tools-plugin</artifactId>
   <name>Attachment Tools Plugin</name>
-  <version>1.2.0-5.7</version>
+  <version>1.2.0-5.9-SNAPSHOT</version>
 
   <properties>
-    <confluence.version>5.7.6</confluence.version>
-    <confluence.data.version>5.7.6</confluence.data.version>
+    <confluence.version>5.9.6</confluence.version>
+    <confluence.data.version>5.9.6</confluence.data.version>
     <amps.version>6.2.2</amps.version>
     <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -103,8 +103,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
       </plugin>
