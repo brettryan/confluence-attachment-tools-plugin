@@ -81,22 +81,21 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
         return INPUT;
     }
 
-	@Override
-	public String execute() throws Exception {
+    @Override
+    public String execute() throws Exception {
         System.out.println("Saving settings: " + ageRuleEnabled);
-        PurgeAttachmentSettings s = new PurgeAttachmentSettings();
-        s.setAgeRuleEnabled(ageRuleEnabled);
-        s.setMaxDaysOld(maxDaysOld);
-        s.setMaxRevisions(maxRevisions);
-        s.setMaxSizeRuleEnabled(maxSizeRuleEnabled);
-        s.setMaxTotalSize(maxTotalSize);
-        s.setMode(mode);
-        s.setReportEmailAddress(reportEmailAddress);
-        s.setReportOnly(reportOnly);
-        s.setRevisionCountRuleEnabled(revisionCountRuleEnabled);
-        settingSvc.setSettings(getSpaceKey(), s);
-		return super.execute();
-	}
+        settingSvc.setSettings(getSpaceKey(),
+                               new PurgeAttachmentSettings(mode,
+                                                           ageRuleEnabled,
+                                                           maxDaysOld,
+                                                           revisionCountRuleEnabled,
+                                                           maxRevisions,
+                                                           maxSizeRuleEnabled,
+                                                           maxTotalSize,
+                                                           reportOnly,
+                                                           reportEmailAddress));
+        return super.execute();
+    }
 
     //
     // Settings properties follow
