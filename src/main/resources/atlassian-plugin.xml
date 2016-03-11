@@ -33,6 +33,15 @@
     </icon>
   </web-item>
 
+  <web-item key="configure-purge-attachments-admin"
+            name="Purge Attachments"
+            section="system.admin/configuration"
+            weight="10">
+    <description>Link to purge attachments admin page.</description>
+    <label key="${project.groupId}.${project.artifactId}.config.purge"/>
+    <link linkId="purge-attachments-admin-link">/admin/plugins/attachment-tools/configure.action</link>
+  </web-item>
+
   <resource type="i18n" name="i18n" location="i18n" />
 
   <job key="purge-old-attachments-job"
