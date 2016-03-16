@@ -118,6 +118,7 @@ public class PurgeAttachmentsJob extends AbstractJob {
         return spaceManager.getAllSpaceKeys(SpaceStatus.CURRENT).stream()
                 .filter(k -> k != null)
                 .map(k -> new ImmutablePair<>(k, getSettings(k, defaultSetting)))
+                .filter(n -> n.right != null)
                 .collect(toMap(k -> k.left, k -> k.right));
     }
 
