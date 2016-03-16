@@ -16,7 +16,7 @@
   <properties>
     <confluence.version>5.9.6</confluence.version>
     <confluence.data.version>5.9.6</confluence.data.version>
-    <amps.version>6.2.2</amps.version>
+    <amps.version>6.2.3</amps.version>
     <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>dd</netbeans.hint.license>
@@ -96,6 +96,15 @@
           <productVersion>${confluence.version}</productVersion>
           <productDataVersion>${confluence.data.version}</productDataVersion>
           <jvmArgs>-Dconfluence.velocity.deprecation.strictmode=false</jvmArgs>
+          <enableFastdev>true</enableFastdev>
+          <!--
+          <enableFastdev>false</enableFastdev>
+          <pluginArtifact>
+            <groupId>com.atlassian.labs.plugins</groupId>
+            <artifactId>quickreload</artifactId>
+            <version>${quick.reload.version}</version>
+          </pluginArtifact>
+          -->
         </configuration>
       </plugin>
       <plugin>
