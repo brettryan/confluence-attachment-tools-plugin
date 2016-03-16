@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class PurgeAttachmentsSettingsService {
 
     private static final String KEY = "com.drunkendev.confluence.plugins.attachments.purge-settings";
+    private static final int DEFAULT_DELETE_LIMIT = 50;
 
     private final BandanaManager bandanaManager;
 
@@ -51,11 +52,13 @@ public class PurgeAttachmentsSettingsService {
     }
 
     public PurgeAttachmentSettings createDefault() {
-        return new PurgeAttachmentSettings(PurgeAttachmentSettings.MODE_DISABLED,
+        return new PurgeAttachmentSettings(PurgeAttachmentSettings.MODE_GLOBAL,
                                            false, 0,
                                            false, 0,
                                            false, 0,
-                                           true, null);
+                                           true, null,
+                                           false,
+                                           DEFAULT_DELETE_LIMIT);
     }
 
     //TODO: Implement ability to remove all space contexts.

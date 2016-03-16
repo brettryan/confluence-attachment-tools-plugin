@@ -8,7 +8,22 @@
   <body>
     #parse ( "/template/includes/actionerrors.vm" )
     <form action="doconfigure.action" method="POST" class="aui long-label">
+      #set ($show_sendPlainTextMail = true)
       #parse ("/templates/purge-attachments/config/configure-purge-attachments-common.vm")
+
+      <h2>Runtime Limits</h2>
+
+      <fieldset class="group">
+        <div class="field-group">
+          <label for="maxRunTime">Delete Limit</label>
+          <input class="text short-field" type="text" id="deleteLimit" name="deleteLimit"
+                 value="$deleteLimit"/>
+          <div class="description">
+            Limit to a maximum of versions to delete on each pass. All attachments will
+            still be processed adn reported for deletions.
+          </div>
+        </div>
+      </fieldset>
 
       <div class="buttons-container">
         <div class="buttons">

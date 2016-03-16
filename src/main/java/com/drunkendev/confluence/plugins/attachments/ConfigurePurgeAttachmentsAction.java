@@ -29,6 +29,9 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
     private long maxTotalSize;
     private boolean reportOnly;
     private String reportEmailAddress;
+    private boolean sendPlainTextMail;
+
+    private int deleteLimit;
 
     /**
      * Creates a new {@code ConfigurePurgeAttachmentsAction} instance.
@@ -78,6 +81,8 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
         this.maxTotalSize = s.getMaxTotalSize();
         this.reportOnly = s.isReportOnly();
         this.reportEmailAddress = s.getReportEmailAddress();
+        this.sendPlainTextMail = s.isSendPlainTextMail();
+        this.deleteLimit = s.getDeleteLimit();
         return INPUT;
     }
 
@@ -93,7 +98,9 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
                                                            maxSizeRuleEnabled,
                                                            maxTotalSize,
                                                            reportOnly,
-                                                           reportEmailAddress));
+                                                           reportEmailAddress,
+                                                           sendPlainTextMail,
+                                                           deleteLimit));
         return super.execute();
     }
 
@@ -224,6 +231,22 @@ public class ConfigurePurgeAttachmentsAction extends AbstractSpaceAction impleme
      */
     public void setReportEmailAddress(String reportEmailAddress) {
         this.reportEmailAddress = reportEmailAddress;
+    }
+
+    public boolean isSendPlainTextMail() {
+        return sendPlainTextMail;
+    }
+
+    public void setSendPlainTextMail(boolean sendPlainTextMail) {
+        this.sendPlainTextMail = sendPlainTextMail;
+    }
+
+    public int getDeleteLimit() {
+        return deleteLimit;
+    }
+
+    public void setDeleteLimit(int deleteLimit) {
+        this.deleteLimit = deleteLimit;
     }
 
 }

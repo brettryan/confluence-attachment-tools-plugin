@@ -83,7 +83,7 @@
     <input class="checkbox" type="checkbox" id="reportOnly" name="reportOnly" value="true"
       #if ($reportOnly) checked="checked" #end
       />
-    <label for="reportOnly">Enable Report Only Mode</label>
+    <label for="reportOnly">Enable</label>
   </div>
   <div class="description">
     If enabled no processing will be performed.
@@ -96,4 +96,16 @@
       Send email report to this email address.
     </div>
   </div>
+#if ($show_sendPlainTextMail)
+  <legend><span>Plain Text Email</span></legend>
+  <div class="checkbox">
+    <input class="checkbox" type="checkbox" id="sendPlainTextMail" name="sendPlainTextMail" value="true"
+      #if ($sendPlainTextMail) checked="checked" #end
+      />
+    <label for="sendPlainTextMail">Enable</label>
+  </div>
+  <div class="description">
+    Plain text may be preferred for easier parsing. This is affects all email settings.
+  </div>
+#end
 </fieldset>

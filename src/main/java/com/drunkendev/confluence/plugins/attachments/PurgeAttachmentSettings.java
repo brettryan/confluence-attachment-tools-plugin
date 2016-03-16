@@ -32,6 +32,9 @@ public class PurgeAttachmentSettings implements Serializable {
     private long maxTotalSize;
     private boolean reportOnly;
     private String reportEmailAddress;
+    private boolean sendPlainTextMail;
+
+    private int deleteLimit;
 
     /**
      * Creates a new {@code PurgeAttachmentSettings} instance.
@@ -47,7 +50,9 @@ public class PurgeAttachmentSettings implements Serializable {
                                    boolean maxSizeRuleEnabled,
                                    long maxTotalSize,
                                    boolean reportOnly,
-                                   String reportEmailAddress) {
+                                   String reportEmailAddress,
+                                   boolean sendPlainTextMail,
+                                   int deleteLimit) {
         this.mode = mode;
         this.ageRuleEnabled = ageRuleEnabled;
         this.maxDaysOld = maxDaysOld;
@@ -57,6 +62,8 @@ public class PurgeAttachmentSettings implements Serializable {
         this.maxTotalSize = maxTotalSize;
         this.reportOnly = reportOnly;
         this.reportEmailAddress = reportEmailAddress;
+        this.sendPlainTextMail = sendPlainTextMail;
+        this.deleteLimit = deleteLimit;
     }
 
     /**
@@ -183,6 +190,22 @@ public class PurgeAttachmentSettings implements Serializable {
      */
     public void setReportEmailAddress(String reportEmailAddress) {
         this.reportEmailAddress = reportEmailAddress;
+    }
+
+    public boolean isSendPlainTextMail() {
+        return sendPlainTextMail;
+    }
+
+    public void setSendPlainTextMail(boolean sendPlainTextMail) {
+        this.sendPlainTextMail = sendPlainTextMail;
+    }
+
+    public int getDeleteLimit() {
+        return deleteLimit;
+    }
+
+    public void setDeleteLimit(int deleteLimit) {
+        this.deleteLimit = deleteLimit;
     }
 
     @Override
