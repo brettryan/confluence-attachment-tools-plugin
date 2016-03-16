@@ -11,7 +11,7 @@
   <groupId>com.drunkendev.confluence.plugins</groupId>
   <artifactId>attachment-tools-plugin</artifactId>
   <name>Attachment Tools Plugin</name>
-  <version>1.2.0-5.9-SNAPSHOT</version>
+  <version>1.2.0-5.9-alpha-1</version>
 
   <properties>
     <confluence.version>5.9.6</confluence.version>
