@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.quartz.JobExecutionContext;
@@ -43,6 +44,7 @@ import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.repeat;
 
@@ -163,7 +165,18 @@ public class PurgeAttachmentsJob extends AbstractJob {
                     counters[IDX_PRIOR_VERSIONS] += prior.size();
 
                     List<Attachment> toDelete = findDeletions(prior, settings);
-                    if (!toDelete.isEmpty()) {
+                    Set<Integer> badVersions = toDelete.stream()
+                            .filter(n -> n.getVersion() >= attachment.getVersion())
+                            .map(n -> n.getVersion())
+                            .collect(toSet());
+                    if (badVersions.size() > 0) {
+                        LOG.error("Attachment bas invalid prior versions: {}:{} :- {} ({}) :: {}",
+                                  attachment.getSpaceKey(),
+                                  attachment.getSpace().getName(),
+                                  attachment.getDisplayTitle(),
+                                  attachment.getVersion(),
+                                  badVersions);
+                    } else if (!toDelete.isEmpty()) {
                         boolean canUpdate;
                         if (!settings.isReportOnly() && !systemSettings.isReportOnly()) {
                             canUpdate = systemSettings.getDeleteLimit() == 0 ||
