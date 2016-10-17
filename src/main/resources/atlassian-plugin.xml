@@ -18,7 +18,7 @@
              class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsSettingsService"/>
 
   <web-resource key="purge-attachment-images" name="Purge Attachment Images">
-     <resource type="download" name="images/" location="images"/>
+    <resource type="download" name="images/" location="images"/>
   </web-resource>
 
   <web-item key="configure-purge-attachments-space"
@@ -44,21 +44,19 @@
 
   <resource type="i18n" name="i18n" location="i18n" />
 
-  <job key="purge-old-attachments-job"
-       name="Purge Attachment Versions"
-       class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"
-       perClusterJob="false" />
+  <component key="purge-old-attachments-job"
+             class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"/>
 
-  <trigger key="purge-old-attachments-trigger"
-           name="Purge Attachment Versions - Trigger">
-    <job key="purge-old-attachments-job" />
+  <job-config key="purge-old-attachments-trigger"
+              name="Purge Attachment Versions - Trigger">
+    <job key="purge-old-attachments-job" perClusterJob="false" />
     <!-- Run once a day -->
     <schedule cron-expression="0 0 0 * * ?"/>
     <managed editable="true"
              keepingHistory="true"
              canRunAdhoc="true"
              canDisable="true" />
-  </trigger>
+  </job-config>
 
   <xwork key="configure-purge-attachments" name="Configure Purge Attachments">
 

@@ -11,12 +11,12 @@
   <groupId>com.drunkendev.confluence.plugins</groupId>
   <artifactId>attachment-tools-plugin</artifactId>
   <name>Attachment Tools Plugin</name>
-  <version>1.2.0-5.9-alpha-3</version>
+  <version>1.2.0</version>
 
   <properties>
-    <confluence.version>5.9.6</confluence.version>
-    <confluence.data.version>5.9.6</confluence.data.version>
-    <amps.version>6.2.3</amps.version>
+    <confluence.version>5.10.7</confluence.version>
+    <confluence.data.version>5.10.7</confluence.data.version>
+    <amps.version>6.2.9</amps.version>
     <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>dd</netbeans.hint.license>

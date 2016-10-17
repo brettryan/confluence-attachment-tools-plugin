@@ -10,31 +10,33 @@ package com.drunkendev.confluence.plugins.attachments;
 import com.atlassian.confluence.mail.template.ConfluenceMailQueueItem;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.spaces.SpaceManager;
 import com.atlassian.confluence.spaces.SpaceStatus;
 import com.atlassian.core.task.MultiQueueTaskManager;
 import com.atlassian.core.util.FileSize;
 import com.atlassian.mail.MailException;
-import com.atlassian.quartz.jobs.AbstractJob;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
+import com.atlassian.scheduler.JobRunner;
+import com.atlassian.scheduler.JobRunnerRequest;
+import com.atlassian.scheduler.JobRunnerResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -54,7 +57,7 @@ import static org.apache.commons.lang3.StringUtils.repeat;
  *
  * @author  Brett Ryan
  */
-public class PurgeAttachmentsJob extends AbstractJob {
+public class PurgeAttachmentsJob implements JobRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeAttachmentsJob.class);
 
@@ -62,7 +65,9 @@ public class PurgeAttachmentsJob extends AbstractJob {
             = nullsFirst(comparingInt(n -> n.getVersion()));
     private static final Comparator<MailLogEntry> COMP_MAILLOG_SPACE_TITLE
             = comparing((MailLogEntry n) -> n.getAttachment().getSpace().getName(), nullsFirst(naturalOrder()))
-            .thenComparing((MailLogEntry n) -> n.getAttachment().getDisplayTitle(), nullsFirst(naturalOrder()));
+                    .thenComparing((MailLogEntry n) -> n.getAttachment().getDisplayTitle(), nullsFirst(naturalOrder()));
+
+    private static final int BATCH_SIZE = 50;
 
     private static final int IDX_PRIOR_VERSIONS = 0;
     private static final int IDX_DELETED = 1;
@@ -71,6 +76,8 @@ public class PurgeAttachmentsJob extends AbstractJob {
     private static final int IDX_CURRENT_VERSIONS = 4;
     private static final int IDX_CURRENT_VISITED = 5;
     private static final int IDX_PROCESS_LIMIT = 6;
+    private static final int IDX_BATCHES = 7;
+    private static final int COUNTER_ARRAY_SIZE = 8;
 
     private final AttachmentManager attachmentManager;
     private final SpaceManager spaceManager;
@@ -132,99 +139,127 @@ public class PurgeAttachmentsJob extends AbstractJob {
         return res;
     }
 
+    public static <T> ImmutablePair<Duration, T> time(Supplier<T> r) {
+        Instant start = Instant.now();
+        T res = r.get();
+        return new ImmutablePair<>(Duration.between(start, Instant.now()), res);
+    }
+
+    public static Duration time(Runnable r) {
+        Instant start = Instant.now();
+        r.run();
+        return Duration.between(start, Instant.now());
+    }
+
     @Override
-    public void doExecute(JobExecutionContext jec) throws JobExecutionException {
-        LOG.debug("Purge old attachments started.");
-        LocalDateTime start = LocalDateTime.now();
+    public JobRunnerResponse runJob(JobRunnerRequest jrr) {
+        try {
+            LOG.info("Purge old attachments started.");
+            LocalDateTime start = LocalDateTime.now();
 
-        PurgeAttachmentSettings systemSettings = getSystemSettings();
-        Map<String, PurgeAttachmentSettings> spaceSettings = getAllSpaceSettings(systemSettings);
+            PurgeAttachmentSettings systemSettings = getSystemSettings();
+            Map<String, PurgeAttachmentSettings> spaceSettings = getAllSpaceSettings(systemSettings);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("System settings: {}", systemSettings);
-            spaceSettings.forEach((k, v) -> LOG.debug("Space Settings: {} -> {}", k, v));
-        }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("System settings: {}", systemSettings);
+                spaceSettings.forEach((k, v) -> LOG.debug("Space Settings: {} -> {}", k, v));
+            }
 
-        Map<String, List<MailLogEntry>> mailEntries = new HashMap<>();
+            Map<String, List<MailLogEntry>> mailEntries = new HashMap<>();
 
-        long[] counters = new long[7];
+            long[] counters = new long[COUNTER_ARRAY_SIZE];
 
-        transactionTemplate.execute(() -> {
-            Iterator<Attachment> attIter = attachmentManager.getAttachmentDao().findLatestVersionsIterator();
+            ImmutablePair<Duration, ArrayDeque<Long>> findAll
+                    = time(() -> attachmentManager.getAttachmentDao().findAll()
+                    .stream()
+                    .map(Attachment::getId).collect(toCollection(ArrayDeque::new)));
+            LOG.debug("FIND ALL ({}) : {}", findAll.left, findAll.right.size());
 
-            while (attIter.hasNext()) {
-                Attachment attachment = attIter.next();
-                counters[IDX_CURRENT_VERSIONS]++;
+            ArrayDeque<Long> ids = findAll.right;
+            while (!ids.isEmpty()) {
+                LOG.debug("Processing batch {}; {} remain", ++counters[IDX_BATCHES], ids.size());
+                transactionTemplate.execute(() -> {
+                    AttachmentDao dao = attachmentManager.getAttachmentDao();
+                    try {
+                        for (int i = 0; i < BATCH_SIZE && !ids.isEmpty(); i++) {
+                            Attachment attachment = attachmentManager.getAttachment(ids.poll());
+                            counters[IDX_CURRENT_VERSIONS]++;
 
-                if (attachment.getVersion() > 1 && spaceSettings.containsKey(attachment.getSpaceKey())) {
-                    counters[IDX_CURRENT_VISITED]++;
+                            if (attachment.getVersion() > 1 && spaceSettings.containsKey(attachment.getSpaceKey())) {
+                                counters[IDX_CURRENT_VISITED]++;
 
-                    PurgeAttachmentSettings settings = spaceSettings.get(attachment.getSpaceKey());
+                                PurgeAttachmentSettings settings = spaceSettings.get(attachment.getSpaceKey());
 
-                    List<Attachment> prior = attachmentManager.getPreviousVersions(attachment);
-                    counters[IDX_PRIOR_VERSIONS] += prior.size();
+                                List<Attachment> prior = attachmentManager.getPreviousVersions(attachment);
+                                counters[IDX_PRIOR_VERSIONS] += prior.size();
 
-                    List<Attachment> toDelete = findDeletions(prior, settings);
-                    Set<Integer> badVersions = toDelete.stream()
-                            .filter(n -> n.getVersion() >= attachment.getVersion())
-                            .map(n -> n.getVersion())
-                            .collect(toSet());
-                    if (badVersions.size() > 0) {
-                        LOG.error("Attachment bas invalid prior versions: {}:{} :- {} ({}) :: {}",
-                                  attachment.getSpaceKey(),
-                                  attachment.getSpace().getName(),
-                                  attachment.getDisplayTitle(),
-                                  attachment.getVersion(),
-                                  badVersions);
-                    } else if (!toDelete.isEmpty()) {
-                        boolean canUpdate;
-                        if (!settings.isReportOnly() && !systemSettings.isReportOnly()) {
-                            canUpdate = systemSettings.getDeleteLimit() == 0 ||
-                                        counters[IDX_PROCESS_LIMIT] < systemSettings.getDeleteLimit();
-                        } else {
-                            canUpdate = false;
-                        }
+                                List<Attachment> toDelete = findDeletions(prior, settings);
+                                Set<Integer> badVersions = toDelete.stream()
+                                        .filter(n -> n.getVersion() >= attachment.getVersion())
+                                        .map(n -> n.getVersion())
+                                        .collect(toSet());
+                                if (badVersions.size() > 0) {
+                                    LOG.error("Attachment bas invalid prior versions: {}:{} :- {} ({}) :: {}",
+                                              attachment.getSpaceKey(),
+                                              attachment.getSpace().getName(),
+                                              attachment.getDisplayTitle(),
+                                              attachment.getVersion(),
+                                              badVersions);
+                                } else if (!toDelete.isEmpty()) {
+                                    boolean canUpdate;
+                                    if (!settings.isReportOnly() && !systemSettings.isReportOnly()) {
+                                        canUpdate = systemSettings.getDeleteLimit() == 0 ||
+                                                    counters[IDX_PROCESS_LIMIT] < systemSettings.getDeleteLimit();
+                                    } else {
+                                        canUpdate = false;
+                                    }
 
-                        if (canUpdate) {
-                            counters[IDX_PROCESS_LIMIT]++;
-                        }
+                                    if (canUpdate) {
+                                        counters[IDX_PROCESS_LIMIT]++;
+                                    }
 
-                        long spaceSaved = toDelete.stream().map(p -> {
-                            LOG.debug("Attachment to remove {}", p.getId());
-                            if (canUpdate) {
-                                Instant s = Instant.now();
-                                attachmentManager.removeAttachmentVersionFromServer(p);
-                                counters[IDX_DELETED]++;
-                                counters[IDX_DELETED_TIME] += Duration.between(s, Instant.now()).toMillis();
-                            } else {
-                                counters[IDX_DELETE_AVAIL]++;
+                                    long spaceSaved = toDelete.stream().map(p -> {
+                                        LOG.debug("Attachment to remove {}", p.getId());
+                                        if (canUpdate) {
+//                                            attachmentManager.removeAttachmentVersionFromServer(p);
+                                            Duration dur = time(() -> dao.removeAttachmentVersionFromServer(p));
+                                            counters[IDX_DELETED]++;
+                                            counters[IDX_DELETED_TIME] += dur.toMillis();
+                                        } else {
+                                            counters[IDX_DELETE_AVAIL]++;
+                                        }
+                                        return p.getFileSize();
+                                    }).reduce(0L, (a, b) -> a + b);
+
+                                    MailLogEntry mle = new MailLogEntry(
+                                            attachment,
+                                            toDelete.stream().map(Attachment::getVersion).collect(toList()),
+                                            !canUpdate,
+                                            settings == systemSettings,
+                                            spaceSaved);
+
+                                    if (settings != systemSettings && StringUtils.isNotBlank(settings.getReportEmailAddress())) {
+                                        if (!mailEntries.containsKey(settings.getReportEmailAddress())) {
+                                            mailEntries.put(settings.getReportEmailAddress(), new ArrayList<>());
+                                        }
+                                        mailEntries.get(settings.getReportEmailAddress()).add(mle);
+                                    }
+                                    //TODO: I know this will log twice if system email and space
+                                    //      email are the same, will fix later, just hacking atm.
+                                    if (isNotBlank(systemSettings.getReportEmailAddress())) {
+                                        if (!mailEntries.containsKey(systemSettings.getReportEmailAddress())) {
+                                            mailEntries.put(systemSettings.getReportEmailAddress(), new ArrayList<>());
+                                        }
+                                        mailEntries.get(systemSettings.getReportEmailAddress()).add(mle);
+                                    }
+                                }
                             }
-                            return p.getFileSize();
-                        }).reduce(0L, (a, b) -> a + b);
-
-                        MailLogEntry mle = new MailLogEntry(
-                                attachment,
-                                toDelete.stream().map(Attachment::getVersion).collect(toList()),
-                                !canUpdate,
-                                settings == systemSettings,
-                                spaceSaved);
-
-                        if (settings != systemSettings && StringUtils.isNotBlank(settings.getReportEmailAddress())) {
-                            if (!mailEntries.containsKey(settings.getReportEmailAddress())) {
-                                mailEntries.put(settings.getReportEmailAddress(), new ArrayList<>());
-                            }
-                            mailEntries.get(settings.getReportEmailAddress()).add(mle);
-                        }
-                        //TODO: I know this will log twice if system email and space
-                        //      email are the same, will fix later, just hacking atm.
-                        if (isNotBlank(systemSettings.getReportEmailAddress())) {
-                            if (!mailEntries.containsKey(systemSettings.getReportEmailAddress())) {
-                                mailEntries.put(systemSettings.getReportEmailAddress(), new ArrayList<>());
-                            }
-                            mailEntries.get(systemSettings.getReportEmailAddress()).add(mle);
-                        }
+                        } // for id
+                        return null;
+                    } catch (Throwable ex) {
+                        throw new RuntimeException(ex);
                     }
-                }
+                });
             }
 
             LocalDateTime end = LocalDateTime.now();
@@ -260,10 +295,14 @@ public class PurgeAttachmentsJob extends AbstractJob {
                 }
             } catch (MailException ex) {
                 LOG.error("Exception raised while trying to mail results.", ex);
+                return JobRunnerResponse.failed("Task completed but could not email.");
             }
             LOG.debug("Purge attachments complete.");
-            return null;
-        });
+        } catch (Throwable ex) {
+            LOG.error("Exception in job: {}", ex.getMessage(), ex);
+            return JobRunnerResponse.failed(ex);
+        }
+        return JobRunnerResponse.success();
     }
 
     private List<Attachment> findDeletions(List<Attachment> prior, PurgeAttachmentSettings stng) {
