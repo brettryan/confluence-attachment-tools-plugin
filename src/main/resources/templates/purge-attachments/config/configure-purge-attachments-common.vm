@@ -105,7 +105,7 @@
     <label for="sendPlainTextMail">Enable</label>
   </div>
   <div class="description">
-    Plain text may be preferred for easier parsing. This is affects all email settings.
+    Plain text may be preferred for easier parsing. This affects all email settings.
   </div>
 #end
 </fieldset>

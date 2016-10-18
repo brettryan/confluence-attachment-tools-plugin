@@ -19,8 +19,8 @@
           <input class="text short-field" type="text" id="deleteLimit" name="deleteLimit"
                  value="$deleteLimit"/>
           <div class="description">
-            Limit to a maximum of versions to delete on each pass. All attachments will
-            still be processed adn reported for deletions.
+            Limit to a maximum number of versions to delete on each pass. All
+            attachments will still be processed and reported for deletions.
           </div>
         </div>
       </fieldset>
