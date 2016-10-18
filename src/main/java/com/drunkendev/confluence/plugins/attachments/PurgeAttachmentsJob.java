@@ -17,10 +17,8 @@ import com.atlassian.confluence.spaces.SpaceStatus;
 import com.atlassian.core.task.MultiQueueTaskManager;
 import com.atlassian.core.util.FileSize;
 import com.atlassian.mail.MailException;
+import com.atlassian.quartz.jobs.AbstractJob;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
-import com.atlassian.scheduler.JobRunner;
-import com.atlassian.scheduler.JobRunnerRequest;
-import com.atlassian.scheduler.JobRunnerResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -37,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ import static org.apache.commons.lang3.StringUtils.repeat;
  *
  * @author  Brett Ryan
  */
-public class PurgeAttachmentsJob implements JobRunner {
+public class PurgeAttachmentsJob extends AbstractJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeAttachmentsJob.class);
 
@@ -152,7 +152,7 @@ public class PurgeAttachmentsJob implements JobRunner {
     }
 
     @Override
-    public JobRunnerResponse runJob(JobRunnerRequest req) {
+    public void doExecute(JobExecutionContext jec) throws JobExecutionException {
         LOG.info("Purge attachment revisions started.");
         try {
             LocalDateTime start = LocalDateTime.now();
@@ -177,11 +177,11 @@ public class PurgeAttachmentsJob implements JobRunner {
 
             ArrayDeque<Long> ids = findAll.right;
 
-            while (!ids.isEmpty() && !req.isCancellationRequested()) {
+            while (!ids.isEmpty()) {
                 LOG.debug("Processing batch {}; {} atttachments remain", ++counters[IDX_BATCHES], ids.size());
                 transactionTemplate.execute(() -> {
                     AttachmentDao dao = attachmentManager.getAttachmentDao();
-                    for (int i = 0; i < BATCH_SIZE && !ids.isEmpty() && !req.isCancellationRequested(); i++) {
+                    for (int i = 0; i < BATCH_SIZE && !ids.isEmpty(); i++) {
                         Attachment attachment = attachmentManager.getAttachment(ids.poll());
                         process(attachment,
                                 counters,
@@ -192,10 +192,6 @@ public class PurgeAttachmentsJob implements JobRunner {
                     }
                     return null;
                 });
-            }
-
-            if (req.isCancellationRequested()) {
-                LOG.warn("Attachment purging has been cancelled.");
             }
 
             LocalDateTime end = LocalDateTime.now();
@@ -223,23 +219,20 @@ public class PurgeAttachmentsJob implements JobRunner {
                                  start,
                                  end,
                                  counters,
-                                 req.isCancellationRequested());
+                                 false);
             } else {
                 mailResultsHtml(mailEntries,
                                 start,
                                 end,
                                 counters,
-                                req.isCancellationRequested());
+                                false);
             }
         } catch (MailException ex) {
             LOG.error("Exception raised while trying to mail results.", ex);
-            return JobRunnerResponse.failed("Task completed but could not email.");
         } catch (Throwable ex) {
             LOG.error("Purge attachment revisions failed: {}", ex.getMessage(), ex);
-            return JobRunnerResponse.failed(ex);
         }
         LOG.info("Purge attachment revisions completed.");
-        return JobRunnerResponse.success();
     }
 
     private void process(Attachment attachment,

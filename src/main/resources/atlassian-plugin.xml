@@ -44,19 +44,21 @@
 
   <resource type="i18n" name="i18n" location="i18n" />
 
-  <component key="purge-old-attachments-job"
-             class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"/>
+  <job key="purge-old-attachments-job"
+       name="Purge Attachment Versions"
+       class="com.drunkendev.confluence.plugins.attachments.PurgeAttachmentsJob"
+       perClusterJob="false" />
 
-  <job-config key="purge-old-attachments-trigger"
-              name="Purge Attachment Versions - Trigger">
-    <job key="purge-old-attachments-job" perClusterJob="false" />
+  <trigger key="purge-old-attachments-trigger"
+           name="Purge Attachment Versions - Trigger">
+    <job key="purge-old-attachments-job" />
     <!-- Run once a day -->
     <schedule cron-expression="0 0 0 * * ?"/>
     <managed editable="true"
              keepingHistory="true"
              canRunAdhoc="true"
              canDisable="true" />
-  </job-config>
+  </trigger>
 
   <xwork key="configure-purge-attachments" name="Configure Purge Attachments">
 
