@@ -96,7 +96,8 @@
           <productVersion>${confluence.version}</productVersion>
           <productDataVersion>${confluence.data.version}</productDataVersion>
           <jvmArgs>-Dconfluence.velocity.deprecation.strictmode=false</jvmArgs>
-          <enableFastdev>true</enableFastdev>
+          <enableQuickReload>true</enableQuickReload>
+          <enableFastdev>false</enableFastdev>
           <!--
           <enableFastdev>false</enableFastdev>
           <pluginArtifact>
